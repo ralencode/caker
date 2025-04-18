@@ -1,0 +1,8 @@
+obj
+bin
+
+.dockerignore
+.gitignore
+compose.yml
+default.env
+Dockerfile*
