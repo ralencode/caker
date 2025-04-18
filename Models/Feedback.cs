@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Caker.Models
 {
     public class Feedback : BaseModel
     {
+        [JsonPropertyName("confectioner_id")]
         public required int ConfectionerId { get; set; }
 
         [ForeignKey("ConfectionerId")]

@@ -5,6 +5,7 @@ namespace Caker.Models
 {
     public class Confectioner : BaseModel
     {
+        [JsonPropertyName("user_id")]
         public required int UserId { get; set; }
 
         [ForeignKey("UserId")]

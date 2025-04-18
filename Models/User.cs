@@ -10,6 +10,7 @@ namespace Caker.Models
 
         public required string Password { get; set; }
 
+        [JsonPropertyName("phone_number")]
         public required string PhoneNumber { get; set; }
 
         [JsonIgnore]
@@ -19,9 +20,11 @@ namespace Caker.Models
         public virtual Confectioner? Confectioner { get; set; }
 
         [JsonIgnore]
+        [JsonPropertyName("messages_from")]
         public virtual ICollection<Message>? MessagesFrom { get; set; }
 
         [JsonIgnore]
+        [JsonPropertyName("messages_to")]
         public virtual ICollection<Message>? MessagesTo { get; set; }
     }
 }

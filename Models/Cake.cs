@@ -5,6 +5,7 @@ namespace Caker.Models
 {
     public class Cake : BaseModel
     {
+        [JsonPropertyName("confectioner_id")]
         public required int ConfectionerId { get; set; }
 
         [ForeignKey("ConfectionerId")]
@@ -16,6 +17,8 @@ namespace Caker.Models
         public required double Price { get; set; } = 0.0;
         public double? Weight { get; set; }
         public double? Diameter { get; set; }
+
+        [JsonPropertyName("req_time")]
         public TimeSpan? ReqTime { get; set; }
         public string? Text { get; set; }
         public string? Color { get; set; }
