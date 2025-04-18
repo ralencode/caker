@@ -3,7 +3,6 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: caker_server
     ports:
       - "40000:40000"
     env_file:
