@@ -1,23 +1,65 @@
-version: '3'
 services:
+  server:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: caker_server
+    ports:
+      - "40000:40000"
+    env_file:
+      - path: ./default.env
+        required: true
+      - path: ./override.env
+        required: false
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
-    image: docker.io/postgres
+    image: postgres
     environment:
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypassword
-      - POSTGRES_DB=mydb
+      - POSTGRES_USER=caker-db-user
+      - POSTGRES_PASSWORD=veryComplicatedPassword5720
+      - POSTGRES_DB=caker-db
+    volumes:
+      - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    volumes:
-      - caker-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-q",
+          "-d",
+          "caker-db",
+          "-U",
+          "caker-db-user"
+        ]
+      start_period: 5s
+      start_interval: 1s
 
   adminer:
-    image: docker.io/adminer
-    depends_on: db
+    image: adminer
     ports:
       - "5431:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    environment:
+      - ADMINER_DEFAULT_DB_DRIVER=pgsql
+      - ADMINER_DEFAULT_DB_HOST=db
+      - ADMINER_DEFAULT_DB_USERNAME=caker-db-user
+      - ADMINER_DEFAULT_DB_PASSWORD=veryComplicatedPassword5720
+      - ADMINER_DEFAULT_DB_NAME=caker-db
+
+  migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.Migrator
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
-  caker-db-data:
+  db-data:
