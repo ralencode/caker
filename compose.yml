@@ -52,13 +52,5 @@ services:
       - ADMINER_DEFAULT_DB_PASSWORD=veryComplicatedPassword5720
       - ADMINER_DEFAULT_DB_NAME=caker-db
 
-  migrator:
-    build:
-      context: .
-      dockerfile: Dockerfile.Migrator
-    depends_on:
-      db:
-        condition: service_healthy
-
 volumes:
   db-data:
