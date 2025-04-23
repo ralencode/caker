@@ -1,6 +1,9 @@
+using System.Reflection;
+using System.Text.Json;
 using Caker.Models;
 using Caker.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Caker.Controllers
 {
@@ -54,6 +57,10 @@ namespace Caker.Controllers
                 await _repository.Create(entity);
                 return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity);
             }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(501, ex.Message);
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
@@ -66,17 +73,48 @@ namespace Caker.Controllers
         {
             try
             {
-                if (id != entity.Id)
-                {
-                    return BadRequest();
-                }
+                entity.Id = id;
                 await _repository.Update(entity);
                 return NoContent();
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(501, ex.Message);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PartialUpdate(int id, [FromBody] JsonElement partialEntity)
+        {
+            var entity = await _repository.GetById(id);
+            if (entity == null)
+                return NotFound();
+
+            // Use reflection or a DTO to map properties
+            var entityType = typeof(T);
+            foreach (var prop in partialEntity.EnumerateObject())
+            {
+                var propertyName = prop.Name;
+                var propertyInfo = entityType.GetProperty(
+                    propertyName,
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance
+                );
+                if (propertyInfo != null && propertyInfo.CanWrite)
+                {
+                    var value = JsonSerializer.Deserialize(
+                        prop.Value.GetRawText(),
+                        propertyInfo.PropertyType
+                    );
+                    propertyInfo.SetValue(entity, value);
+                }
+            }
+
+            await _repository.Update(entity);
+            return NoContent();
         }
 
         // DELETE api/[controller]/id
