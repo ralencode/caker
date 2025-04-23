@@ -3,6 +3,7 @@ using System;
 using Caker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Caker.Migrations
 {
     [DbContext(typeof(CakerDbContext))]
-    partial class CakerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423211155_DiametersTastes")]
+    partial class DiametersTastes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,7 +78,7 @@ namespace Caker.Migrations
 
                     b.HasIndex("ConfectionerId");
 
-                    b.ToTable("Cakes", (string)null);
+                    b.ToTable("Cakes");
                 });
 
             modelBuilder.Entity("Caker.Models.Confectioner", b =>
@@ -117,7 +120,7 @@ namespace Caker.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Confectioners", (string)null);
+                    b.ToTable("Confectioners");
                 });
 
             modelBuilder.Entity("Caker.Models.Customer", b =>
@@ -137,7 +140,7 @@ namespace Caker.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Caker.Models.Feedback", b =>
@@ -178,7 +181,7 @@ namespace Caker.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Feedbacks", (string)null);
+                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("Caker.Models.Message", b =>
@@ -212,7 +215,7 @@ namespace Caker.Migrations
 
                     b.HasIndex("ToId");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
 
                     b.HasAnnotation("Relational:JsonPropertyName", "messages_to");
                 });
@@ -257,7 +260,7 @@ namespace Caker.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Caker.Models.User", b =>
@@ -290,7 +293,7 @@ namespace Caker.Migrations
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Caker.Models.Cake", b =>
