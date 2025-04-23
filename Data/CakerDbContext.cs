@@ -15,6 +15,8 @@ namespace Caker.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>().HasIndex(u => u.PhoneNumber).IsUnique();
+
             modelBuilder
                 .Entity<Customer>()
                 .HasOne(c => c.User)
