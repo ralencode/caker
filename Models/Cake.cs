@@ -22,6 +22,7 @@ namespace Caker.Models
         public TimeSpan? ReqTime { get; set; }
         public string? Text { get; set; }
         public string? Color { get; set; }
+        public string? Taste { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<Order>? Orders { get; set; }
