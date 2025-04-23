@@ -13,10 +13,8 @@ namespace Caker.Models
         [JsonPropertyName("phone_number")]
         public required string PhoneNumber { get; set; }
 
-        [JsonIgnore]
         public virtual Customer? Customer { get; set; }
 
-        [JsonIgnore]
         public virtual Confectioner? Confectioner { get; set; }
 
         [JsonIgnore]

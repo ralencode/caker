@@ -8,6 +8,7 @@ namespace Caker.Models
         [JsonPropertyName("user_id")]
         public required int UserId { get; set; }
 
+        [JsonIgnore]
         [ForeignKey("UserId")]
         public virtual User? User { get; set; }
 
