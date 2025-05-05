@@ -65,6 +65,7 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    environment: Actions
 
     steps:
     - name: Deploy to server
