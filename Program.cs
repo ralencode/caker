@@ -27,6 +27,19 @@ builder.Services.AddDbContext<CakerDbContext>(options =>
     )
 );
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "AllowSwagger",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:8085").AllowAnyMethod().AllowAnyHeader();
+            policy.WithOrigins("http://swagger:8080").AllowAnyMethod().AllowAnyHeader();
+        }
+    );
+});
+
 // Add password service
 builder.Services.AddScoped<IPasswordService, BCryptPasswordService>();
 
@@ -62,12 +75,10 @@ builder.Services.AddSwaggerGen(c =>
         }
     );
 
-    // Set the comments path for the Swagger JSON and UI
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
 
-    // Add security definition
     c.AddSecurityDefinition(
         "Bearer",
         new OpenApiSecurityScheme
@@ -98,6 +109,7 @@ app.Map(
 );
 
 // Use swagger
+app.UseCors("AllowSwagger");
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
