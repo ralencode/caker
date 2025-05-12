@@ -18,20 +18,22 @@ namespace Caker.Migrations
                 nullable: true,
                 oldClrType: typeof(BigInteger),
                 oldType: "numeric",
-                oldNullable: true);
+                oldNullable: true
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<BigInteger>(
+            migrationBuilder.AlterColumn<string>(
                 name: "Color",
                 table: "Cakes",
                 type: "numeric",
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldNullable: true);
+                oldNullable: true
+            );
         }
     }
 }

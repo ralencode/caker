@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Caker.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class FullRecreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,7 +21,8 @@ namespace Caker.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: false)
+                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -37,7 +38,14 @@ namespace Caker.Migrations
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Rating = table.Column<double>(type: "double precision", nullable: false),
-                    Address = table.Column<string>(type: "text", nullable: false)
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    MaxDiameter = table.Column<double>(type: "double precision", nullable: false),
+                    MinDiameter = table.Column<double>(type: "double precision", nullable: false),
+                    MaxEta = table.Column<int>(type: "integer", nullable: false),
+                    MinEta = table.Column<int>(type: "integer", nullable: false),
+                    Fillings = table.Column<string[]>(type: "text[]", nullable: true),
+                    DoImages = table.Column<bool>(type: "boolean", nullable: false),
+                    DoShapes = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,12 +117,19 @@ namespace Caker.Migrations
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Image = table.Column<string>(type: "text", nullable: false),
-                    Price = table.Column<double>(type: "double precision", nullable: false),
+                    Price = table.Column<int>(type: "integer", nullable: false),
                     Weight = table.Column<double>(type: "double precision", nullable: true),
                     Diameter = table.Column<double>(type: "double precision", nullable: true),
-                    ReqTime = table.Column<TimeSpan>(type: "interval", nullable: true),
+                    ReqTime = table.Column<int>(type: "integer", nullable: true),
                     Text = table.Column<string>(type: "text", nullable: true),
-                    Color = table.Column<string>(type: "text", nullable: true)
+                    Color = table.Column<string>(type: "text", nullable: true),
+                    Taste = table.Column<string>(type: "text", nullable: true),
+                    IsCustom = table.Column<bool>(type: "boolean", nullable: false),
+                    Fillings = table.Column<string[]>(type: "text[]", nullable: false),
+                    TextSize = table.Column<double>(type: "double precision", nullable: false),
+                    TextY = table.Column<double>(type: "double precision", nullable: false),
+                    TextX = table.Column<double>(type: "double precision", nullable: false),
+                    ImagePath = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -176,7 +191,9 @@ namespace Caker.Migrations
                     PaymentStatus = table.Column<int>(type: "integer", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Eta = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    OrderStatus = table.Column<int>(type: "integer", nullable: false)
+                    OrderStatus = table.Column<int>(type: "integer", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    IsCustom = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -246,6 +263,12 @@ namespace Caker.Migrations
                 name: "IX_Orders_CustomerId",
                 table: "Orders",
                 column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_PhoneNumber",
+                table: "Users",
+                column: "PhoneNumber",
+                unique: true);
         }
 
         /// <inheritdoc />

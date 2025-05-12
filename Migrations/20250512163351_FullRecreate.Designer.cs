@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Caker.Migrations
 {
     [DbContext(typeof(CakerDbContext))]
-    [Migration("20250415015827_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250512163351_FullRecreate")]
+    partial class FullRecreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,7 +37,8 @@ namespace Caker.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("ConfectionerId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "confectioner_id");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -46,22 +47,51 @@ namespace Caker.Migrations
                     b.Property<double?>("Diameter")
                         .HasColumnType("double precision");
 
+                    b.PrimitiveCollection<string[]>("Fillings")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasAnnotation("Relational:JsonPropertyName", "image_path");
+
+                    b.Property<bool>("IsCustom")
+                        .HasColumnType("boolean")
+                        .HasAnnotation("Relational:JsonPropertyName", "is_custom");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("double precision");
+                    b.Property<int>("Price")
+                        .HasColumnType("integer");
 
-                    b.Property<TimeSpan?>("ReqTime")
-                        .HasColumnType("interval");
+                    b.Property<int?>("ReqTime")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "required_time");
+
+                    b.Property<string>("Taste")
+                        .HasColumnType("text");
 
                     b.Property<string>("Text")
                         .HasColumnType("text");
+
+                    b.Property<double>("TextSize")
+                        .HasColumnType("double precision")
+                        .HasAnnotation("Relational:JsonPropertyName", "text_size");
+
+                    b.Property<double>("TextX")
+                        .HasColumnType("double precision")
+                        .HasAnnotation("Relational:JsonPropertyName", "text_x");
+
+                    b.Property<double>("TextY")
+                        .HasColumnType("double precision")
+                        .HasAnnotation("Relational:JsonPropertyName", "text_y");
 
                     b.Property<bool>("Visible")
                         .HasColumnType("boolean");
@@ -92,11 +122,39 @@ namespace Caker.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("DoImages")
+                        .HasColumnType("boolean")
+                        .HasAnnotation("Relational:JsonPropertyName", "do_images");
+
+                    b.Property<bool>("DoShapes")
+                        .HasColumnType("boolean")
+                        .HasAnnotation("Relational:JsonPropertyName", "do_shapes");
+
+                    b.PrimitiveCollection<string[]>("Fillings")
+                        .HasColumnType("text[]");
+
+                    b.Property<double>("MaxDiameter")
+                        .HasColumnType("double precision")
+                        .HasAnnotation("Relational:JsonPropertyName", "max_diameter");
+
+                    b.Property<int>("MaxEta")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "max_eta");
+
+                    b.Property<double>("MinDiameter")
+                        .HasColumnType("double precision")
+                        .HasAnnotation("Relational:JsonPropertyName", "min_diameter");
+
+                    b.Property<int>("MinEta")
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "min_eta");
+
                     b.Property<double>("Rating")
                         .HasColumnType("double precision");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "user_id");
 
                     b.HasKey("Id");
 
@@ -115,7 +173,8 @@ namespace Caker.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "user_id");
 
                     b.HasKey("Id");
 
@@ -137,7 +196,8 @@ namespace Caker.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("ConfectionerId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "confectioner_id");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer");
@@ -177,7 +237,8 @@ namespace Caker.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("FromId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "from_id");
 
                     b.Property<string>("Image")
                         .HasColumnType("text");
@@ -186,7 +247,8 @@ namespace Caker.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("ToId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "to_id");
 
                     b.HasKey("Id");
 
@@ -195,6 +257,8 @@ namespace Caker.Migrations
                     b.HasIndex("ToId");
 
                     b.ToTable("Messages");
+
+                    b.HasAnnotation("Relational:JsonPropertyName", "messages_to");
                 });
 
             modelBuilder.Entity("Caker.Models.Order", b =>
@@ -206,25 +270,37 @@ namespace Caker.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CakeId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "cake_id");
 
                     b.Property<DateTime>("CreationDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasAnnotation("Relational:JsonPropertyName", "creation_date");
 
                     b.Property<int>("CustomerId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "customer_id");
 
                     b.Property<TimeSpan>("Eta")
                         .HasColumnType("interval");
 
+                    b.Property<bool>("IsCustom")
+                        .HasColumnType("boolean")
+                        .HasAnnotation("Relational:JsonPropertyName", "is_custom");
+
                     b.Property<int>("OrderStatus")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "order_status");
 
                     b.Property<int>("PaymentStatus")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasAnnotation("Relational:JsonPropertyName", "payment_status");
 
                     b.Property<double>("Price")
                         .HasColumnType("double precision");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -257,9 +333,16 @@ namespace Caker.Migrations
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasAnnotation("Relational:JsonPropertyName", "phone_number");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
