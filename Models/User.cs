@@ -2,6 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace Caker.Models
 {
+    public enum UserType
+    {
+        Confectioner,
+        Customer,
+        Admin,
+    }
+
     public class User : BaseModel
     {
         public required string Name { get; set; }
@@ -12,6 +19,8 @@ namespace Caker.Models
 
         [JsonPropertyName("phone_number")]
         public required string PhoneNumber { get; set; }
+
+        public UserType Type { get; set; }
 
         public virtual Customer? Customer { get; set; }
 
