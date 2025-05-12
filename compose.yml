@@ -1,6 +1,6 @@
 services:
   server:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     ports:
@@ -25,18 +25,22 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test:
-        [
-          "CMD",
-          "pg_isready",
-          "-q",
-          "-d",
-          "caker-db",
-          "-U",
-          "caker-db-user"
-        ]
+      test: ["CMD", "pg_isready", "-q", "-d", "caker-db", "-U", "caker-db-user"]
       start_period: 5s
       start_interval: 1s
+
+  ftp:
+    image: markhobson/vsftpd
+    volumes:
+      - ./assets:/home/vsftpd
+    environment:
+      - FTP_USER=ftpuser
+      - FTP_PASS=ftppass
+      - PASV_ENABLE=NO
+      - LOCAL_UMASK=022
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
 
   adminer:
     image: adminer

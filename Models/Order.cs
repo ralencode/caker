@@ -5,19 +5,37 @@ namespace Caker.Models
 {
     public enum OrderStatusType
     {
+        [JsonPropertyName("pending_approval")]
         PENDING_APPROVAL,
+
+        [JsonPropertyName("pending_payment")]
         PENDING_PAYMENT,
+
+        [JsonPropertyName("in_progress")]
         IN_PROGRESS,
+
+        [JsonPropertyName("done")]
         DONE,
+
+        [JsonPropertyName("received")]
         RECEIVED,
+
+        [JsonPropertyName("canceled")]
         CANCELED,
+
+        [JsonPropertyName("rejected")]
         REJECTED,
     }
 
     public enum PaymentStatusType
     {
+        [JsonPropertyName("pending")]
         PENDING,
+
+        [JsonPropertyName("paid")]
         PAID,
+
+        [JsonPropertyName("refunded")]
         REFUNDED,
     }
 
@@ -45,5 +63,10 @@ namespace Caker.Models
 
         [JsonPropertyName("order_status")]
         public OrderStatusType OrderStatus { get; set; }
+
+        public int Quantity { get; set; }
+
+        [JsonPropertyName("is_custom")]
+        public bool IsCustom { get; set; }
     }
 }

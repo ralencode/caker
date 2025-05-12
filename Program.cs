@@ -1,9 +1,12 @@
 using Caker.Data;
 using Caker.Repositories;
+using Caker.Services.ImageService;
 using Caker.Services.PasswordService;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
 // Add DbContext
 builder.Services.AddDbContext<CakerDbContext>(options =>
@@ -23,6 +26,9 @@ builder.Services.AddDbContext<CakerDbContext>(options =>
 
 // Add password service
 builder.Services.AddScoped<IPasswordService, BCryptPasswordService>();
+
+// Add image service
+builder.Services.AddScoped<IImageService, FtpImageService>();
 
 // Add Repositories
 builder.Services.AddTransient<UserRepository>();
@@ -46,6 +52,13 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<CakerDbContext>();
     db.Database.Migrate();
 }
+
+// Add error handling
+app.UseExceptionHandler("/error");
+app.Map(
+    "/error",
+    (HttpContext context) => Results.Problem(statusCode: context.Response.StatusCode)
+);
 
 app.UseHttpsRedirection();
 
