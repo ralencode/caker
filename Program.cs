@@ -1,5 +1,6 @@
 using Caker.Data;
 using Caker.Repositories;
+using Caker.Services.PasswordService;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,9 @@ builder.Services.AddDbContext<CakerDbContext>(options =>
         }
     )
 );
+
+// Add password service
+builder.Services.AddScoped<IPasswordService, BCryptPasswordService>();
 
 // Add Repositories
 builder.Services.AddTransient<UserRepository>();
