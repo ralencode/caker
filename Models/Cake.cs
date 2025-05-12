@@ -22,7 +22,7 @@ namespace Caker.Models
         [JsonPropertyName("required_time")]
         public int? ReqTime { get; set; }
         public string? Text { get; set; }
-        public BigInteger? Color { get; set; }
+        public string? Color { get; set; }
         public string? Taste { get; set; }
 
         [JsonPropertyName("is_custom")]

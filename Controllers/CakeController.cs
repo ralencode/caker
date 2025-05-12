@@ -141,8 +141,8 @@ namespace Caker.Controllers
                 model.Description = dto.Description;
             if (dto.Price.HasValue)
                 model.Price = dto.Price.Value;
-            if (dto.Color.HasValue)
-                model.Color = dto.Color.Value;
+            if (dto.Color is not null)
+                model.Color = dto.Color;
             if (dto.Diameter.HasValue)
                 model.Diameter = dto.Diameter.Value;
             if (dto.Fillings is not null)
