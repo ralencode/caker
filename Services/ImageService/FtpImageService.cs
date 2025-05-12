@@ -2,7 +2,7 @@ namespace Caker.Services.ImageService
 {
     public class FtpImageService : IImageService
     {
-        private readonly string _ftpPath = "/home/vsftpd";
+        private readonly string _ftpPath = "assets";
 
         public async Task<string> SaveImageAsync(IFormFile image, int userId)
         {

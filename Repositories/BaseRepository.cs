@@ -37,14 +37,12 @@ namespace Caker.Repositories
             return await GetQuery(GetIncludes() ?? []).ToListAsync().ConfigureAwait(false);
         }
 
-        public virtual async Task<T?> GetById(int id)
+        public virtual async Task<T?> GetById(int? id)
         {
             return await GetBy(e => e.Id == id);
         }
 
-        protected virtual async Task<T?> GetBy(
-            Expression<Func<T, bool>> predicate
-        )
+        protected virtual async Task<T?> GetBy(Expression<Func<T, bool>> predicate)
         {
             return await GetQuery(GetIncludes() ?? [])
                 .FirstOrDefaultAsync(predicate)

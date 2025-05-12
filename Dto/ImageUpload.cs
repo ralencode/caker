@@ -4,12 +4,12 @@ using Caker.Attributes.FileAttributes;
 
 namespace Caker.Dto
 {
-    public class ImageUpload
+    public record ImageUpload
     {
         [JsonPropertyName("image")]
         [Required]
         [MaxFileSize(10 * 1024 * 1024)] // 10MB
         [AllowedExtensions([".jpg", ".jpeg", ".png"])]
-        public IFormFile Image { get; set; }
+        public required IFormFile? Image { get; set; }
     }
 }

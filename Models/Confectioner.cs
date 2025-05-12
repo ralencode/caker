@@ -27,7 +27,7 @@ namespace Caker.Models
         [JsonPropertyName("min_eta")]
         public int MinEta { get; set; } = 0;
 
-        public ICollection<string>? Tastes { get; set; }
+        public ICollection<string>? Fillings { get; set; }
 
         [JsonPropertyName("do_images")]
         public bool DoImages { get; set; }

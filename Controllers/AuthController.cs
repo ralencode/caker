@@ -8,43 +8,35 @@ namespace Caker.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController : ControllerBase
+    public class AuthController(
+        UserRepository userRepo,
+        CustomerRepository customerRepo,
+        ConfectionerRepository confectionerRepo,
+        IPasswordService passwordService
+    ) : ControllerBase
     {
-        private readonly UserRepository _userRepo;
-        private readonly ConfectionerRepository _confectionerRepo;
-        private readonly CustomerRepository _customerRepo;
-        private readonly IPasswordService _passwordService;
-
-        public AuthController(
-            UserRepository userRepo,
-            ConfectionerRepository confectionerRepo,
-            CustomerRepository customerRepo,
-            IPasswordService passwordService
-        )
-        {
-            _userRepo = userRepo;
-            _confectionerRepo = confectionerRepo;
-            _customerRepo = customerRepo;
-            _passwordService = passwordService;
-        }
+        private readonly UserRepository _userRepo = userRepo;
+        private readonly CustomerRepository _customerRepo = customerRepo;
+        private readonly ConfectionerRepository _confectionerRepo = confectionerRepo;
+        private readonly IPasswordService _passwordService = passwordService;
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserResponse>> Login(LoginRequest request)
+        public async Task<ActionResult<UserResponse>> Login([FromBody] LoginRequest request)
         {
             var user = await _userRepo.GetByPhoneNumber(request.Phone);
             if (user == null)
                 return NotFound();
-
             if (!_passwordService.VerifyPassword(request.Password, user.Password))
                 return Unauthorized();
 
-            return Ok(MapToUserResponse(user));
+            return Ok(MapToResponse(user));
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<UserResponse>> Register(RegisterRequest request)
+        public async Task<ActionResult<UserResponse>> Register([FromBody] RegisterRequest request)
         {
-            if (await _userRepo.GetByPhoneNumber(request.Phone) != null)
+            var existingUser = await _userRepo.GetByPhoneNumber(request.Phone);
+            if (existingUser != null)
                 return Conflict("Phone already exists");
 
             var user = new User
@@ -60,33 +52,33 @@ namespace Caker.Controllers
 
             if (request.Type == UserType.Confectioner)
             {
-                await _confectionerRepo.Create(
-                    new Confectioner
-                    {
-                        UserId = user.Id!.Value,
-                        Description = request.Description ?? "",
-                        Address = request.Address ?? "",
-                    }
-                );
-            }
-            else if (request.Type == UserType.Customer)
-            {
-                await _customerRepo.Create(new Customer { UserId = user.Id!.Value });
+                user.Confectioner = new Confectioner
+                {
+                    UserId = user.Id!.Value,
+                    Description = request.Description ?? "",
+                    Address = request.Address ?? "",
+                };
+                await _confectionerRepo.Create(user.Confectioner);
             }
 
-            return CreatedAtAction(nameof(Login), MapToUserResponse(user));
+            if (request.Type == UserType.Customer)
+            {
+                user.Customer = new Customer { UserId = user.Id!.Value };
+                await _customerRepo.Create(user.Customer);
+            }
+
+            return CreatedAtAction(nameof(Login), MapToResponse(user));
         }
 
-        private static UserResponse MapToUserResponse(User user) =>
-            new()
-            {
-                Id = user.Id!.Value,
-                Name = user.Name,
-                Phone = user.PhoneNumber,
-                Email = user.Email,
-                Type = user.Type,
-                Description = user.Confectioner?.Description,
-                Address = user.Confectioner?.Address,
-            };
+        private static UserResponse MapToResponse(User user) =>
+            new(
+                user.Id!.Value,
+                user.Name,
+                user.PhoneNumber,
+                user.Email,
+                user.Type,
+                user.Confectioner?.Description,
+                user.Confectioner?.Address
+            );
     }
 }

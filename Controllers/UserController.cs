@@ -1,49 +1,43 @@
+using Caker.Dto;
 using Caker.Models;
 using Caker.Repositories;
+using Caker.Services.PasswordService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Caker.Controllers
 {
     [ApiController]
     [Route("api/users")]
-    public class UserController(UserRepository repository) : BaseController<User>(repository)
+    public class UserController(UserRepository repository, IPasswordService passwordService)
+        : BaseController<User, UserResponse, CreateUserRequest, UpdateUserRequest>(repository)
     {
-        // GET api/users/phone/{phone-string}
-        [HttpGet("phone/{phoneNumber}")]
-        public async Task<ActionResult<User>> GetUserByPhoneNumber(string phoneNumber)
+        readonly IPasswordService _passwordService = passwordService;
+
+        protected override User CreateModel(CreateUserRequest dto) =>
+            new()
+            {
+                Name = dto.Name,
+                PhoneNumber = dto.Phone,
+                Email = dto.Email,
+                Password = _passwordService.HashPassword(dto.Password),
+                Type = dto.Type,
+            };
+
+        protected override void UpdateModel(User model, UpdateUserRequest dto)
         {
-            try
-            {
-                var user = await repository.GetByPhoneNumber(phoneNumber);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            if (dto.Name != null)
+                model.Name = dto.Name;
+            if (dto.Phone != null)
+                model.PhoneNumber = dto.Phone;
+            if (dto.Email != null)
+                model.Email = dto.Email;
+            if (dto.Type.HasValue)
+                model.Type = dto.Type.Value;
         }
 
-        // GET api/users/have_chat_with/{user_id}
-        [HttpGet("have_chat_with/{userId}")]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsersWithChat(int userId)
+        protected override UserResponse ToDto(User model)
         {
-            try
-            {
-                var users = await repository.GetUsersWithChat(userId);
-                if (users == null || !users.Any())
-                {
-                    return NotFound();
-                }
-                return Ok(users);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            return new(model.Id!.Value, model.Name, model.PhoneNumber, model.Email, model.Type);
         }
     }
 }

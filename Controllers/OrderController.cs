@@ -1,3 +1,4 @@
+using Caker.Dto;
 using Caker.Models;
 using Caker.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -6,45 +7,113 @@ namespace Caker.Controllers
 {
     [ApiController]
     [Route("api/orders")]
-    public class OrderController(OrderRepository repository) : BaseController<Order>(repository)
+    public class OrderController(OrderRepository repo)
+        : BaseController<Order, OrderResponse, CreateOrderFullRequest, UpdateOrderFullRequest>(repo)
     {
-        // GET api/orders/customer/{customer_id}
-        [HttpGet("customer/{customerId}")]
-        public async Task<ActionResult<IEnumerable<Order>>> GetByCustomer(int customerId)
-        {
-            try
-            {
-                var orders = await repository.GetByCustomer(customerId);
-                if (orders == null || !orders.Any())
-                {
-                    return NotFound();
-                }
+        readonly OrderRepository _repo = repo;
 
-                return Ok(orders);
-            }
-            catch (Exception ex)
+        [HttpPost]
+        public async Task<ActionResult<OrderResponse>> Create([FromBody] CreateOrderRequest request)
+        {
+            var order = new Order
             {
-                return StatusCode(500, ex.Message);
-            }
+                CustomerId = request.CustomerId,
+                CakeId = request.CakeId,
+                Price = request.Price,
+                Quantity = request.Quantity,
+                OrderStatus = OrderStatusType.PENDING_APPROVAL,
+                CreationDate = DateTime.UtcNow,
+            };
+
+            await _repo.Create(order);
+            return CreatedAtAction(nameof(_repo.GetById), new { id = order.Id }, ToDto(order));
         }
 
-        // GET api/orders/confectioner/{confectioner_id}
-        [HttpGet("confectioner/{confectionerId}")]
-        public async Task<ActionResult<IEnumerable<Order>>> GetByConfectioner(int confectionerId)
+        [HttpPost("full")]
+        public async Task<ActionResult<OrderResponse>> CreateFull(
+            [FromBody] CreateOrderFullRequest dto
+        )
         {
-            try
+            var order = new Order
             {
-                var orders = await repository.GetByConfectioner(confectionerId);
-                if (orders == null || !orders.Any())
-                {
-                    return NotFound();
-                }
-                return Ok(orders);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+                CustomerId = dto.CustomerId,
+                CakeId = dto.CakeId,
+                Price = dto.Price,
+                Quantity = dto.Quantity,
+                OrderStatus = dto.OrderStatus,
+                PaymentStatus = dto.PaymentStatus,
+                Eta = dto.Eta,
+                IsCustom = dto.IsCustom,
+                CreationDate = DateTime.UtcNow,
+            };
+
+            await _repository.Create(order);
+            return CreatedAtAction(nameof(GetById), new { id = order.Id }, ToDto(order));
         }
+
+        protected override void UpdateModel(Order model, UpdateOrderFullRequest dto)
+        {
+            if (dto.CustomerId.HasValue)
+                model.CustomerId = dto.CustomerId.Value;
+            if (dto.CakeId.HasValue)
+                model.CakeId = dto.CakeId.Value;
+            if (dto.Price.HasValue)
+                model.Price = dto.Price.Value;
+            if (dto.Quantity.HasValue)
+                model.Quantity = dto.Quantity.Value;
+            if (dto.OrderStatus.HasValue)
+                model.OrderStatus = dto.OrderStatus.Value;
+            if (dto.PaymentStatus.HasValue)
+                model.PaymentStatus = dto.PaymentStatus.Value;
+            if (dto.Eta.HasValue)
+                model.Eta = dto.Eta.Value;
+            if (dto.IsCustom.HasValue)
+                model.IsCustom = dto.IsCustom.Value;
+            if (dto.CreatedAt.HasValue)
+                model.CreationDate = dto.CreatedAt.Value;
+        }
+
+        protected override Order CreateModel(CreateOrderFullRequest dto) =>
+            new()
+            {
+                CustomerId = dto.CustomerId,
+                CakeId = dto.CakeId,
+                Price = dto.Price,
+                Quantity = dto.Quantity,
+                OrderStatus = dto.OrderStatus,
+                CreationDate = dto.CreatedAt,
+                PaymentStatus = dto.PaymentStatus,
+                Eta = dto.Eta,
+                IsCustom = dto.IsCustom,
+            };
+
+        protected override OrderResponse ToDto(Order model) =>
+            new(
+                model.Id!.Value,
+                model.CustomerId,
+                model.Cake!.ConfectionerId,
+                MapToCakeResponse(model.Cake),
+                model.Price,
+                model.OrderStatus,
+                model.Quantity,
+                model.CreationDate,
+                model.IsCustom
+            );
+
+        private static CakeResponse MapToCakeResponse(Cake cake) =>
+            new(
+                cake.Id!.Value,
+                cake.Name,
+                cake.Description,
+                $"https://caker.ralen.top/assets/{cake.ImagePath}",
+                cake.Price,
+                cake.Diameter,
+                cake.Weight,
+                cake.Text,
+                cake.TextSize,
+                cake.TextX,
+                cake.TextY,
+                cake.IsCustom
+            );
     }
 }

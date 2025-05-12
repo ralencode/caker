@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations;
 namespace Caker.Attributes.FileAttributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class AllowedExtensionsAttribute : ValidationAttribute
+    public sealed class AllowedExtensionsAttribute(string[] extensions) : ValidationAttribute
     {
-        private readonly string[] _extensions;
+        private readonly string[] _extensions = extensions;
 
-        public AllowedExtensionsAttribute(string[] extensions) => _extensions = extensions;
-
-        protected override ValidationResult IsValid(object value, ValidationContext context)
+        protected override ValidationResult? IsValid(object? value, ValidationContext context)
         {
+            if (value is null)
+                return new ValidationResult($"Image must be specified");
             if (value is IFormFile file)
             {
                 var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
