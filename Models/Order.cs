@@ -3,42 +3,45 @@ using System.Text.Json.Serialization;
 
 namespace Caker.Models
 {
-    public enum PaymentStatusType
-    {
-        Pending,
-        Paid,
-        Refunded,
-    }
-
     public enum OrderStatusType
     {
-        Pending,
-        InProgress,
-        Delivered,
-        Canceled,
+        PENDING_APPROVAL,
+        PENDING_PAYMENT,
+        IN_PROGRESS,
+        DONE,
+        RECEIVED,
+        CANCELED,
+        REJECTED,
+    }
+
+    public enum PaymentStatusType
+    {
+        PENDING,
+        PAID,
+        REFUNDED,
     }
 
     public class Order : BaseModel
     {
         [JsonPropertyName("cake_id")]
-        public required int CakeId { get; set; }
+        public int CakeId { get; set; }
 
         [ForeignKey("CakeId")]
         public virtual Cake? Cake { get; set; }
 
         [JsonPropertyName("customer_id")]
-        public required int CustomerId { get; set; }
+        public int CustomerId { get; set; }
 
         [ForeignKey("CustomerId")]
         public virtual Customer? Customer { get; set; }
-        public required double Price { get; set; }
+        public double Price { get; set; }
 
         [JsonPropertyName("payment_status")]
         public PaymentStatusType PaymentStatus { get; set; }
 
         [JsonPropertyName("creation_date")]
-        public required DateTime CreationDate { get; set; }
-        public required TimeSpan Eta { get; set; }
+        public DateTime CreationDate { get; set; }
+        public TimeSpan Eta { get; set; }
 
         [JsonPropertyName("order_status")]
         public OrderStatusType OrderStatus { get; set; }
