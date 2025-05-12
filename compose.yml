@@ -16,7 +16,7 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres
+    image: docker.io/postgres
     environment:
       - POSTGRES_USER=caker-db-user
       - POSTGRES_PASSWORD=veryComplicatedPassword5720
@@ -31,7 +31,7 @@ services:
       start_interval: 1s
 
   ftp:
-    image: markhobson/vsftpd
+    image: docker.io/markhobson/vsftpd
     volumes:
       - ./assets:/home/vsftpd
     environment:
@@ -40,11 +40,11 @@ services:
       - PASV_ENABLE=NO
       - LOCAL_UMASK=022
     ports:
-      - "21:21"
+      - "4021:21"
       - "30000-30009:30000-30009"
 
   swagger:
-    image: swaggerapi/swagger-ui
+    image: docker.io/swaggerapi/swagger-ui
     ports:
       - "8085:8080"
     environment:
@@ -53,7 +53,7 @@ services:
       - server
 
   adminer:
-    image: adminer
+    image: docker.io/adminer
     ports:
       - "5431:8080"
     depends_on:
