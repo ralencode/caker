@@ -30,7 +30,7 @@ namespace Caker.Controllers
         }
 
         [HttpPost("full")]
-        public async Task<ActionResult<OrderResponse>> CreateFull(
+        public override async Task<ActionResult<OrderResponse>> Create(
             [FromBody] CreateOrderFullRequest dto
         )
         {
