@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Text.Json.Serialization;
 
 namespace Caker.Dto
@@ -8,7 +9,7 @@ namespace Caker.Dto
         [property: JsonPropertyName("description")] string Description,
         [property: JsonPropertyName("diameter")] double Diameter,
         [property: JsonPropertyName("weight")] double Weight,
-        [property: JsonPropertyName("eta_days")] int ETADays,
+        [property: JsonPropertyName("required_time")] int ReqTime,
         [property: JsonPropertyName("price")] int Price
     ) : ImageUpload;
 
@@ -17,8 +18,8 @@ namespace Caker.Dto
         [property: JsonPropertyName("name")] string? Name,
         [property: JsonPropertyName("description")] string Description,
         [property: JsonPropertyName("fillings")] ICollection<string> Fillings,
-        [property: JsonPropertyName("eta_days")] int ETADays,
-        [property: JsonPropertyName("color")] long Color,
+        [property: JsonPropertyName("required_time")] int ReqTime,
+        [property: JsonPropertyName("color")] BigInteger Color,
         [property: JsonPropertyName("diameter")] double Diameter,
         [property: JsonPropertyName("text")] string Text,
         [property: JsonPropertyName("text_size")] double TextSize,
@@ -32,8 +33,8 @@ namespace Caker.Dto
         [property: JsonPropertyName("name")] string? Name,
         [property: JsonPropertyName("description")] string? Description,
         [property: JsonPropertyName("fillings")] ICollection<string>? Fillings,
-        [property: JsonPropertyName("eta_days")] int? ETADays,
-        [property: JsonPropertyName("color")] long? Color,
+        [property: JsonPropertyName("required_time")] int? ReqTime,
+        [property: JsonPropertyName("color")] BigInteger? Color,
         [property: JsonPropertyName("diameter")] double? Diameter,
         [property: JsonPropertyName("text")] string? Text,
         [property: JsonPropertyName("text_size")] double? TextSize,
@@ -44,10 +45,14 @@ namespace Caker.Dto
 
     public record CakeResponse(
         [property: JsonPropertyName("id")] int Id,
-        [property: JsonPropertyName("name")] string Name,
+        [property: JsonPropertyName("confectioner_id")] int ConfectionerId,
+        [property: JsonPropertyName("name")] string? Name,
         [property: JsonPropertyName("description")] string Description,
+        [property: JsonPropertyName("fillings")] ICollection<string>? Fillings,
+        [property: JsonPropertyName("required_time")] int? ReqTime,
+        [property: JsonPropertyName("color")] BigInteger? Color,
         [property: JsonPropertyName("image_url")] string ImageUrl,
-        [property: JsonPropertyName("price")] int Price,
+        [property: JsonPropertyName("price")] int? Price,
         [property: JsonPropertyName("diameter")] double? Diameter,
         [property: JsonPropertyName("weight")] double? Weight,
         [property: JsonPropertyName("text")] string? Text,

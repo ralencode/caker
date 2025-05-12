@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
 using System.Text.Json.Serialization;
 
 namespace Caker.Models
@@ -18,10 +19,10 @@ namespace Caker.Models
         public double? Weight { get; set; }
         public double? Diameter { get; set; }
 
-        [JsonPropertyName("req_time")]
-        public TimeSpan? ReqTime { get; set; }
+        [JsonPropertyName("required_time")]
+        public int? ReqTime { get; set; }
         public string? Text { get; set; }
-        public long? Color { get; set; }
+        public BigInteger? Color { get; set; }
         public string? Taste { get; set; }
 
         [JsonPropertyName("is_custom")]

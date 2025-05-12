@@ -103,9 +103,13 @@ namespace Caker.Controllers
         private static CakeResponse MapToCakeResponse(Cake cake) =>
             new(
                 cake.Id!.Value,
+                cake.ConfectionerId,
                 cake.Name,
                 cake.Description,
-                $"https://caker.ralen.top/assets/{cake.ImagePath}",
+                cake.Fillings,
+                cake.ReqTime,
+                cake.Color,
+                $"assets/{cake.ImagePath}",
                 cake.Price,
                 cake.Diameter,
                 cake.Weight,

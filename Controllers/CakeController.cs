@@ -32,7 +32,7 @@ namespace Caker.Controllers
                 Description = request.Description,
                 Diameter = request.Diameter,
                 Weight = request.Weight,
-                ReqTime = TimeSpan.FromDays(request.ETADays),
+                ReqTime = request.ReqTime,
                 Price = request.Price,
                 ImagePath = imagePath,
                 IsCustom = false,
@@ -58,7 +58,7 @@ namespace Caker.Controllers
             {
                 ConfectionerId = request.ConfectionerId,
                 Diameter = request.Diameter,
-                ReqTime = TimeSpan.FromDays(request.ETADays),
+                ReqTime = request.ReqTime,
                 Color = request.Color,
                 Text = request.Text,
                 ImagePath = imagePath,
@@ -96,8 +96,12 @@ namespace Caker.Controllers
         {
             return new(
                 cake.Id!.Value,
+                cake.ConfectionerId,
                 cake.Name,
                 cake.Description,
+                cake.Fillings,
+                cake.ReqTime,
+                cake.Color,
                 $"assets/{cake.ImagePath}",
                 cake.Price,
                 cake.Diameter,
