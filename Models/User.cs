@@ -4,9 +4,14 @@ namespace Caker.Models
 {
     public enum UserType
     {
-        Confectioner,
-        Customer,
-        Admin,
+        [JsonPropertyName("confectioner")]
+        CONFECTIONER,
+
+        [JsonPropertyName("customer")]
+        CUSTOMER,
+
+        [JsonPropertyName("admin")]
+        ADMIN,
     }
 
     public class User : BaseModel

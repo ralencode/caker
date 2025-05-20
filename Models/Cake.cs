@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Numerics;
 using System.Text.Json.Serialization;
 
 namespace Caker.Models
