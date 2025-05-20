@@ -35,7 +35,9 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.WithOrigins("http://localhost:8085").AllowAnyMethod().AllowAnyHeader();
+            policy.WithOrigins("https://localhost:8085").AllowAnyMethod().AllowAnyHeader();
             policy.WithOrigins("http://swagger:8080").AllowAnyMethod().AllowAnyHeader();
+            policy.WithOrigins("https://swagger:8080").AllowAnyMethod().AllowAnyHeader();
         }
     );
 });
