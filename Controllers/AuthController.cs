@@ -50,7 +50,7 @@ namespace Caker.Controllers
 
             await _userRepo.Create(user);
 
-            if (request.Type == UserType.Confectioner)
+            if (request.Type == UserType.CONFECTIONER)
             {
                 user.Confectioner = new Confectioner
                 {
@@ -61,7 +61,7 @@ namespace Caker.Controllers
                 await _confectionerRepo.Create(user.Confectioner);
             }
 
-            if (request.Type == UserType.Customer)
+            if (request.Type == UserType.CUSTOMER)
             {
                 user.Customer = new Customer { UserId = user.Id!.Value };
                 await _customerRepo.Create(user.Customer);

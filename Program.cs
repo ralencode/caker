@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Caker.Data;
 using Caker.Repositories;
 using Caker.Services.ImageService;
@@ -58,7 +59,14 @@ builder.Services.AddTransient<FeedbackRepository>();
 builder.Services.AddTransient<MessageRepository>();
 
 // Add Controllers
-builder.Services.AddControllers();
+builder
+    .Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter(namingPolicy: JsonNamingPolicy.SnakeCaseLower)
+        );
+    });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddEndpointsApiExplorer();
