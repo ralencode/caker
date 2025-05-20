@@ -37,7 +37,15 @@ namespace Caker.Controllers
 
         protected override UserResponse ToDto(User model)
         {
-            return new(model.Id!.Value, model.Name, model.PhoneNumber, model.Email, model.Type);
+            return new(
+                model.Id!.Value,
+                model.Name,
+                model.PhoneNumber,
+                model.Email,
+                model.Type,
+                model.Confectioner?.Description,
+                model.Confectioner?.Address
+            );
         }
     }
 }
