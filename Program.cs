@@ -44,7 +44,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IPasswordService, BCryptPasswordService>();
 
 // Add image service
-builder.Services.AddScoped<IImageService, FtpImageService>();
+builder.Services.AddScoped<IImageService, LocalFileImageService>();
 
 // Add Repositories
 builder.Services.AddTransient<UserRepository>();

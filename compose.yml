@@ -11,6 +11,8 @@ services:
         required: true
       - path: ./override.env
         required: false
+    volumes:
+      - ./assets:/app/assets
     depends_on:
       db:
         condition: service_healthy
@@ -30,18 +32,18 @@ services:
       start_period: 5s
       start_interval: 1s
 
-  ftp:
-    image: docker.io/markhobson/vsftpd
-    volumes:
-      - ./assets:/home/vsftpd
-    environment:
-      - FTP_USER=ftpuser
-      - FTP_PASS=ftppass
-      - PASV_ENABLE=NO
-      - LOCAL_UMASK=022
-    ports:
-      - "4021:21"
-      - "30000-30009:30000-30009"
+  # ftp:
+  #   image: docker.io/markhobson/vsftpd
+  #   volumes:
+  #     - ./assets:/home/vsftpd
+  #   environment:
+  #     - FTP_USER=ftpuser
+  #     - FTP_PASS=ftppass
+  #     - PASV_ENABLE=NO
+  #     - LOCAL_UMASK=022
+  #   ports:
+  #     - "4021:21"
+  #     - "30000-30009:30000-30009"
 
   swagger:
     image: docker.io/swaggerapi/swagger-ui
