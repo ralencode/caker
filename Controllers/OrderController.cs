@@ -26,7 +26,19 @@ namespace Caker.Controllers
             };
 
             await _repo.Create(order);
-            return CreatedAtAction(nameof(_repo.GetById), new { id = order.Id }, ToDto(order));
+
+            // Fetch the order with included Cake and Confectioner
+            var createdOrder = await _repo.GetById(order.Id!.Value);
+            if (createdOrder == null)
+            {
+                return NotFound();
+            }
+
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = createdOrder.Id },
+                ToDto(createdOrder)
+            );
         }
 
         [HttpPost("full")]
