@@ -44,7 +44,6 @@ namespace Caker.Models
 
         [JsonPropertyName("creation_date")]
         public DateTime CreationDate { get; set; }
-        public TimeSpan Eta { get; set; }
 
         [JsonPropertyName("order_status")]
         public OrderStatusType OrderStatus { get; set; }

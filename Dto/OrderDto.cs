@@ -16,7 +16,6 @@ namespace Caker.Dto
         [property: JsonPropertyName("price")] double Price,
         [property: JsonPropertyName("quantity")] int Quantity,
         [property: JsonPropertyName("order_status")] OrderStatusType OrderStatus,
-        [property: JsonPropertyName("eta")] TimeSpan Eta,
         [property: JsonPropertyName("is_custom")] bool IsCustom,
         [property: JsonPropertyName("created_at")] DateTime CreatedAt
     );
@@ -34,7 +33,6 @@ namespace Caker.Dto
         [property: JsonPropertyName("price")] double? Price,
         [property: JsonPropertyName("quantity")] int? Quantity,
         [property: JsonPropertyName("order_status")] OrderStatusType? OrderStatus,
-        [property: JsonPropertyName("eta")] TimeSpan? Eta,
         [property: JsonPropertyName("is_custom")] bool? IsCustom,
         [property: JsonPropertyName("created_at")] DateTime? CreatedAt
     );
