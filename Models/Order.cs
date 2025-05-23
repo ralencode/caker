@@ -27,18 +27,6 @@ namespace Caker.Models
         REJECTED,
     }
 
-    public enum PaymentStatusType
-    {
-        [JsonPropertyName("pending")]
-        PENDING,
-
-        [JsonPropertyName("paid")]
-        PAID,
-
-        [JsonPropertyName("refunded")]
-        REFUNDED,
-    }
-
     public class Order : BaseModel
     {
         [JsonPropertyName("cake_id")]
@@ -53,9 +41,6 @@ namespace Caker.Models
         [ForeignKey("CustomerId")]
         public virtual Customer? Customer { get; set; }
         public double Price { get; set; }
-
-        [JsonPropertyName("payment_status")]
-        public PaymentStatusType PaymentStatus { get; set; }
 
         [JsonPropertyName("creation_date")]
         public DateTime CreationDate { get; set; }

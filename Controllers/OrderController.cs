@@ -53,7 +53,6 @@ namespace Caker.Controllers
                 Price = dto.Price,
                 Quantity = dto.Quantity,
                 OrderStatus = dto.OrderStatus,
-                PaymentStatus = dto.PaymentStatus,
                 Eta = dto.Eta,
                 IsCustom = dto.IsCustom,
                 CreationDate = DateTime.UtcNow,
@@ -75,8 +74,6 @@ namespace Caker.Controllers
                 model.Quantity = dto.Quantity.Value;
             if (dto.OrderStatus.HasValue)
                 model.OrderStatus = dto.OrderStatus.Value;
-            if (dto.PaymentStatus.HasValue)
-                model.PaymentStatus = dto.PaymentStatus.Value;
             if (dto.Eta.HasValue)
                 model.Eta = dto.Eta.Value;
             if (dto.IsCustom.HasValue)
@@ -94,7 +91,6 @@ namespace Caker.Controllers
                 Quantity = dto.Quantity,
                 OrderStatus = dto.OrderStatus,
                 CreationDate = dto.CreatedAt,
-                PaymentStatus = dto.PaymentStatus,
                 Eta = dto.Eta,
                 IsCustom = dto.IsCustom,
             };
