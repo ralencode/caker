@@ -10,6 +10,6 @@ namespace Caker.Dto
         [Required]
         [MaxFileSize(10 * 1024 * 1024)] // 10MB
         [AllowedExtensions([".jpg", ".jpeg", ".png"])]
-        public required IFormFile? Image { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }
