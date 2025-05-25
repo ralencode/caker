@@ -39,8 +39,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Validate code style
-      run: dotnet format --verify-no-changes
-
+      run: dotnet format ./Caker.sln --verify-no-changes 
   test:
     name: Run Tests (.NET ${{ matrix.dotnet }})
     needs: build
