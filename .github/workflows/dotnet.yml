@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    name: Build
+    name: Build and Push
     runs-on: ubuntu-latest
 
     steps:
@@ -39,7 +39,8 @@ jobs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Validate code style
-      run: dotnet format ./Caker.sln --verify-no-changes 
+      run: dotnet format ./Caker.sln --verify-no-changes
+      
   test:
     name: Tests
     needs: build
@@ -51,28 +52,37 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ matrix.dotnet }}
 
-    - name: Run tests with reports
+    - name: Create TestResults directory
+      run: mkdir -p ./TestResults
+
+    - name: Run tests with explicit output
       run: |
-        mkdir -p ./TestResults
         dotnet test \
           --no-build \
           --verbosity normal \
-          --logger "trx;LogFileName=TestResults/test-results-${{ matrix.os }}-${{ matrix.dotnet }}.trx" \
-          --results-directory ./TestResults
+          --logger "trx;LogFileName=test-results.trx" \
+          --results-directory ./TestResults \
+          --blame-hang \
+          --blame-hang-timeout 5min
+        
+        echo "Test results:"
+        ls -la ./TestResults
 
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ matrix.os }}-${{ matrix.dotnet }}
-        path: ./TestResults/*.trx
-
+        path: ./TestResults/test-results.trx
+        if-no-files-found: ignore
+        
   docker:
-    name: Build and Push Docker Image
+    name: Build
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
