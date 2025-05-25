@@ -1,35 +1,100 @@
 using Caker.Dto;
 using Caker.Models;
 using Caker.Repositories;
+using Caker.Services.CurrentUserService;
 using Caker.Services.ImageService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Caker.Controllers
 {
     [ApiController]
     [Route("api/cakes")]
-    public class CakeController(CakeRepository repository, IImageService imageService)
+    public class CakeController(
+        CakeRepository repository,
+        IImageService imageService,
+        ICurrentUserService currentUserService
+    )
         : BaseController<Cake, CakeResponse, CreateCustomCakeRequest, UpdateCustomCakeRequest>(
-            repository
+            repository,
+            currentUserService
         )
     {
         private readonly CakeRepository _repo = repository;
         private readonly IImageService _imageService = imageService;
+        private readonly ICurrentUserService _currUserService = currentUserService;
 
-        [HttpPost("regular")]
+        /// <summary>
+        /// Create cake for current confectioner by token from cookies.
+        /// </summary>
+        [HttpPost("regular/self")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<CakeResponse>> CreateRegular(
             [FromForm] CreateRegularCakeRequest request
         )
         {
+            User? user;
+            try
+            {
+                user = await _currUserService.GetUser();
+            }
+            catch
+            {
+                return Forbid();
+            }
+            var id_n = user?.Confectioner?.Id;
+            if (id_n is null)
+                return Forbid();
+
+            int id = (int)id_n;
+
+            return await CreateRegularById(request, id);
+        }
+
+        /// <summary>
+        /// Create cake for confectioner by id
+        /// </summary>
+        [HttpPost("regular/{confectionerId}")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<CakeResponse>> CreateRegular(
+            [FromForm] CreateRegularCakeRequest request,
+            int confectionerId
+        )
+        {
+            User? user;
+            try
+            {
+                user = await _currUserService.GetUser();
+            }
+            catch
+            {
+                return Forbid();
+            }
+            var id_n = user?.Confectioner?.Id;
+            if (id_n is null)
+                return Forbid();
+
+            int id = (int)id_n;
+
+            if (user?.Type != UserType.ADMIN && id != confectionerId)
+                return Forbid();
+
+            return await CreateRegularById(request, confectionerId);
+        }
+
+        private async Task<ActionResult<CakeResponse>> CreateRegularById(
+            CreateRegularCakeRequest request,
+            int id
+        )
+        {
             var imagePath =
                 (request.Image is null)
                     ? ""
-                    : await _imageService.SaveImageAsync(request.Image, request.ConfectionerId);
+                    : await _imageService.SaveImageAsync(request.Image, id);
 
             var cake = new Cake
             {
-                ConfectionerId = request.ConfectionerId,
+                ConfectionerId = id,
                 Name = request.Name,
                 Description = request.Description,
                 Diameter = request.Diameter,
@@ -42,10 +107,16 @@ namespace Caker.Controllers
             };
 
             await _repo.Create(cake);
-            return CreatedAtAction(nameof(_repo.GetById), new { id = cake.Id }, cake.ToDto());
+            var createdCake = await _repo.GetById(cake.Id); // Reload to include Confectioner
+            return CreatedAtAction(
+                nameof(_repo.GetById),
+                new { id = cake.Id },
+                createdCake?.ToDto()
+            );
         }
 
-        [HttpPost("custom")]
+        [Authorize]
+        [HttpPost("custom/self")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<CakeResponse>> CreateCustom(
             [FromForm] CreateCustomCakeRequest request
@@ -76,7 +147,12 @@ namespace Caker.Controllers
             };
 
             await _repo.Create(cake);
-            return CreatedAtAction(nameof(_repo.GetById), new { id = cake.Id }, cake.ToDto());
+            var createdCake = await _repo.GetById(cake.Id); // Reloads with Confectioner included
+            return CreatedAtAction(
+                nameof(_repo.GetById),
+                new { id = cake.Id },
+                createdCake?.ToDto()
+            );
         }
 
         [HttpGet("confectioner/{confectionerId}")]
@@ -92,6 +168,27 @@ namespace Caker.Controllers
             }
 
             return Ok(cakes.Select(c => c.ToDto()));
+        }
+
+        [HttpGet("confectioner/self")]
+        public async Task<ActionResult<IEnumerable<CakeResponse>>> GetByConfectioner()
+        {
+            User? user;
+            try
+            {
+                user = await _currUserService.GetUser();
+            }
+            catch
+            {
+                return Forbid();
+            }
+            var id_n = user?.Confectioner?.Id;
+            if (id_n is null)
+                return Forbid();
+
+            int id = (int)id_n;
+
+            return await GetByConfectioner(id);
         }
 
         protected override Cake CreateModel(CreateCustomCakeRequest dto) =>

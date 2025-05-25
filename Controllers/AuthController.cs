@@ -92,15 +92,19 @@ namespace Caker.Controllers
         {
             var refreshToken = Request.Cookies["refreshToken"];
             if (string.IsNullOrEmpty(refreshToken))
-                return Unauthorized();
+                return Unauthorized("string.IsNullOrEmpty(refreshToken)");
 
             var storedToken = await _refreshTokenRepo.GetByToken(refreshToken);
             if (storedToken == null || storedToken.IsExpired || !storedToken.IsActive)
-                return Unauthorized();
+            {
+                return Unauthorized(
+                    "storedToken == null || storedToken.IsExpired || !storedToken.IsActive"
+                );
+            }
 
             var user = await _userRepo.GetById(storedToken.UserId);
             if (user == null)
-                return Unauthorized();
+                return Unauthorized("user == null");
 
             var newAccessToken = _tokenService.GenerateAccessToken(user);
             var newRefreshToken = await CreateRefreshToken(user);

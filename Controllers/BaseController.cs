@@ -1,10 +1,11 @@
 using System.Reflection;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Caker.Models;
 using Caker.Models.Interfaces;
 using Caker.Repositories;
+using Caker.Services.CurrentUserService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,32 +14,53 @@ namespace Caker.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public abstract class BaseController<TModel, TDto, TCreateDto, TUpdateDto>(
-        BaseRepository<TModel> repository
+        BaseRepository<TModel> repository,
+        ICurrentUserService currentUserService
     ) : ControllerBase
         where TModel : BaseModel, IDtoable<TDto>, IAccessibleBy
         where TCreateDto : class
         where TUpdateDto : class
     {
         protected readonly BaseRepository<TModel> _repository = repository;
+        protected readonly ICurrentUserService _currentUserService = currentUserService;
+
+        protected bool CanCreate(TModel? model)
+        {
+            try
+            {
+                _currentUserService.GetUserId();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        protected bool CanRead(TModel? model) => true;
+
+        protected bool CanUpdate(TModel? model) => CheckPermissions(model);
+
+        protected bool CanDelete(TModel? model) => CheckPermissions(model);
 
         protected abstract TModel CreateModel(TCreateDto dto);
         protected abstract void UpdateModel(TModel model, TUpdateDto dto);
 
-        protected virtual bool CheckPermissions(TModel model)
+        protected virtual bool CheckPermissions(TModel? model)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdClaim == null)
+            if (!_currentUserService.IsAuthorized())
                 return false;
 
-            int currentUserId = int.Parse(userIdClaim);
-            bool isAdmin = User.IsInRole("ADMIN");
-
-            return isAdmin || model.AllowedUserIds.Contains(currentUserId);
+            return _currentUserService.IsAdmin()
+                || (model?.AllowedUserIds.Contains(_currentUserService.GetUserId()) ?? true);
         }
 
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<TDto>>> GetAll()
         {
+            if (!CanRead(null))
+                return Forbid();
+
             try
             {
                 var result = await _repository.GetAll();
@@ -54,15 +76,24 @@ namespace Caker.Controllers
         public virtual async Task<ActionResult<TDto>> GetById(int id)
         {
             var entity = await _repository.GetById(id);
+
+            if (!CanRead(entity))
+                return Forbid();
+
             return entity == null ? NotFound() : Ok(entity.ToDto());
         }
 
+        [Authorize]
         [HttpPost]
         public virtual async Task<ActionResult<TDto>> Create([FromBody] TCreateDto dto)
         {
             try
             {
                 var entity = CreateModel(dto);
+
+                if (!CanCreate(entity))
+                    return Forbid();
+
                 await _repository.Create(entity);
                 return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity.ToDto());
             }
@@ -73,19 +104,22 @@ namespace Caker.Controllers
         }
 
         [HttpPut("{id}")]
-        public virtual async Task<IActionResult> Update(int id, [FromBody] TUpdateDto dto)
+        public virtual async Task<ActionResult<TDto>> Update(int id, [FromBody] TUpdateDto dto)
         {
             var entity = await _repository.GetById(id);
             if (entity == null)
                 return NotFound();
 
+            if (!CanUpdate(entity))
+                return Forbid();
+
             UpdateModel(entity, dto);
             await _repository.Update(entity);
-            return NoContent();
+            return Ok(entity.ToDto());
         }
 
         [HttpPatch("{id}")]
-        public virtual async Task<IActionResult> PartialUpdate(
+        public virtual async Task<ActionResult<TDto>> PartialUpdate(
             int id,
             [FromBody] JsonElement patchDoc
         )
@@ -93,6 +127,9 @@ namespace Caker.Controllers
             var entity = await _repository.GetById(id);
             if (entity == null)
                 return NotFound();
+
+            if (!CanUpdate(entity))
+                return Forbid();
 
             var modelType = typeof(TModel);
             var properties = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -128,12 +165,15 @@ namespace Caker.Controllers
             }
 
             await _repository.Update(entity);
-            return NoContent();
+            return Ok(entity.ToDto());
         }
 
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> Delete(int id)
         {
+            if (!CanDelete(await _repository.GetById(id)))
+                return Forbid();
+
             await _repository.Delete(id);
             return NoContent();
         }

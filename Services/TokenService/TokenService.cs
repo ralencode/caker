@@ -20,7 +20,9 @@ namespace Caker.Services.TokenService
             {
                 UserId = user.Id,
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(
+                    _config.GetValue<int>("Jwt:RefreshTokenExpiryDays")
+                ),
             };
             await _refreshTokenRepo.Create(token);
             return token.Token;

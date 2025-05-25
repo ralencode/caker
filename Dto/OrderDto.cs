@@ -4,7 +4,6 @@ using Caker.Models;
 namespace Caker.Dto
 {
     public record CreateOrderRequest(
-        [property: JsonPropertyName("customer_id")] int CustomerId,
         [property: JsonPropertyName("cake_id")] int CakeId,
         [property: JsonPropertyName("price")] double Price,
         [property: JsonPropertyName("quantity")] int Quantity
