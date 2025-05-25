@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Caker.Dto;
 
 namespace Caker.Models
 {
@@ -27,7 +28,7 @@ namespace Caker.Models
         REJECTED,
     }
 
-    public class Order : BaseModel
+    public class Order : BaseModel, IDtoable<OrderResponse>
     {
         [JsonPropertyName("cake_id")]
         public int CakeId { get; set; }
@@ -52,5 +53,18 @@ namespace Caker.Models
 
         [JsonPropertyName("is_custom")]
         public bool IsCustom { get; set; }
+
+        public OrderResponse ToDto() =>
+            new(
+                Id,
+                Customer!.ToDto(),
+                Cake!.Confectioner!.ToDto(),
+                Cake.ToDto(),
+                Price,
+                OrderStatus,
+                Quantity,
+                CreationDate,
+                IsCustom
+            );
     }
 }

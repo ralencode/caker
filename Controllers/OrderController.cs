@@ -37,7 +37,7 @@ namespace Caker.Controllers
             return CreatedAtAction(
                 nameof(GetById),
                 new { id = createdOrder.Id },
-                ToDto(createdOrder)
+                createdOrder.ToDto()
             );
         }
 
@@ -58,7 +58,7 @@ namespace Caker.Controllers
             };
 
             await _repository.Create(order);
-            return CreatedAtAction(nameof(GetById), new { id = order.Id }, ToDto(order));
+            return CreatedAtAction(nameof(GetById), new { id = order.Id }, order.ToDto());
         }
 
         protected override void UpdateModel(Order model, UpdateOrderFullRequest dto)
@@ -90,38 +90,5 @@ namespace Caker.Controllers
                 CreationDate = dto.CreatedAt,
                 IsCustom = dto.IsCustom,
             };
-
-        protected override OrderResponse ToDto(Order model) =>
-            new(
-                model.Id,
-                model.CustomerId,
-                model.Cake!.ConfectionerId,
-                MapToCakeResponse(model.Cake),
-                model.Price,
-                model.OrderStatus,
-                model.Quantity,
-                model.CreationDate,
-                model.IsCustom
-            );
-
-        private static CakeResponse MapToCakeResponse(Cake cake) =>
-            new(
-                cake.Id,
-                cake.ConfectionerId,
-                cake.Name,
-                cake.Description,
-                cake.Fillings,
-                cake.ReqTime,
-                cake.Color,
-                $"assets/{cake.ImagePath}",
-                cake.Price,
-                cake.Diameter,
-                cake.Weight,
-                cake.Text,
-                cake.TextSize,
-                cake.TextX,
-                cake.TextY,
-                cake.IsCustom
-            );
     }
 }

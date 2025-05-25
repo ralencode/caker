@@ -13,7 +13,7 @@ namespace Caker.Controllers
     public abstract class BaseController<TModel, TDto, TCreateDto, TUpdateDto>(
         BaseRepository<TModel> repository
     ) : ControllerBase
-        where TModel : BaseModel
+        where TModel : BaseModel, IDtoable<TDto>
         where TCreateDto : class
         where TUpdateDto : class
     {
@@ -21,7 +21,6 @@ namespace Caker.Controllers
 
         protected abstract TModel CreateModel(TCreateDto dto);
         protected abstract void UpdateModel(TModel model, TUpdateDto dto);
-        protected abstract TDto ToDto(TModel model);
 
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<TDto>>> GetAll()
@@ -29,7 +28,7 @@ namespace Caker.Controllers
             try
             {
                 var result = await _repository.GetAll();
-                return Ok(result.Select(ToDto));
+                return Ok(result.Select(m => m.ToDto()));
             }
             catch (Exception ex)
             {
@@ -41,7 +40,7 @@ namespace Caker.Controllers
         public virtual async Task<ActionResult<TDto>> GetById(int id)
         {
             var entity = await _repository.GetById(id);
-            return entity == null ? NotFound() : Ok(ToDto(entity));
+            return entity == null ? NotFound() : Ok(entity.ToDto());
         }
 
         [HttpPost]
@@ -51,7 +50,7 @@ namespace Caker.Controllers
             {
                 var entity = CreateModel(dto);
                 await _repository.Create(entity);
-                return CreatedAtAction(nameof(GetById), new { id = entity.Id }, ToDto(entity));
+                return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity.ToDto());
             }
             catch (DbUpdateException ex)
             {

@@ -112,23 +112,5 @@ namespace Caker.Controllers
             if (dto.Rating.HasValue)
                 model.Rating = dto.Rating.Value;
         }
-
-        protected override ConfectionerResponse ToDto(Confectioner model)
-        {
-            return new ConfectionerResponse(
-                model.Id,
-                model.UserId,
-                model.Description,
-                model.Rating,
-                model.Address,
-                model.MinDiameter,
-                model.MaxDiameter,
-                model.MinEta,
-                model.MaxEta,
-                model.Fillings ?? [],
-                model.DoImages,
-                model.DoShapes
-            );
-        }
     }
 }

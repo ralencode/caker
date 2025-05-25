@@ -34,18 +34,5 @@ namespace Caker.Controllers
             if (dto.Type.HasValue)
                 model.Type = dto.Type.Value;
         }
-
-        protected override UserResponse ToDto(User model)
-        {
-            return new(
-                model.Id,
-                model.Name,
-                model.PhoneNumber,
-                model.Email,
-                model.Type,
-                model.Confectioner?.Description,
-                model.Confectioner?.Address
-            );
-        }
     }
 }

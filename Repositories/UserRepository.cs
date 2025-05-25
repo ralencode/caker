@@ -8,7 +8,7 @@ namespace Caker.Repositories
     {
         protected override Expression<Func<User, object?>>[] GetIncludes()
         {
-            return [u => u.MessagesTo, u => u.MessagesFrom, u => u.Customer, u => u.Confectioner];
+            return [u => u.RefreshTokens, u => u.Customer, u => u.Confectioner];
         }
 
         public async Task<User?> GetByPhoneNumber(string phoneNumber)
