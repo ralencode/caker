@@ -5,6 +5,7 @@ using Caker.Data;
 using Caker.Repositories;
 using Caker.Services.ImageService;
 using Caker.Services.PasswordService;
+using Caker.Services.TokenService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -49,12 +50,17 @@ builder.Services.AddScoped<IPasswordService, BCryptPasswordService>();
 // Add image service
 builder.Services.AddScoped<IImageService, LocalFileImageService>();
 
+// Add token service
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddHostedService<Caker.Services.ExpiredTokenCleaner>();
+
 // Add Repositories
 builder.Services.AddTransient<UserRepository>();
 builder.Services.AddTransient<OrderRepository>();
 builder.Services.AddTransient<ConfectionerRepository>();
 builder.Services.AddTransient<CustomerRepository>();
 builder.Services.AddTransient<CakeRepository>();
+builder.Services.AddTransient<RefreshTokenRepository>();
 
 // Add Controllers
 builder
