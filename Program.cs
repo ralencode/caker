@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Caker.Data;
 using Caker.Repositories;
+using Caker.Services.CurrentUserService;
 using Caker.Services.ImageService;
 using Caker.Services.PasswordService;
 using Caker.Services.TokenService;
@@ -64,6 +65,9 @@ builder.Services.AddAuthorization(options =>
         policy => policy.RequireClaim(ClaimTypes.Role, "CONFECTIONER")
     );
 });
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Add Repositories
 builder.Services.AddTransient<UserRepository>();
