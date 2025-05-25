@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Caker.Models
 {
-    public class BaseModel
+    public abstract class BaseModel
     {
         [Key]
-        public int? Id { get; set; }
+        public int Id { get; set; }
     }
 }

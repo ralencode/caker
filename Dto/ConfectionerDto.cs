@@ -53,7 +53,9 @@ namespace Caker.Dto
 
     public record ConfectionerResponse(
         [property: JsonPropertyName("id")] int Id,
-        [property: JsonPropertyName("user_id")] int UserId,
+        [property: JsonPropertyName("name")] string Name,
+        [property: JsonPropertyName("phone")] string Phone,
+        [property: JsonPropertyName("email")] string Email,
         [property: JsonPropertyName("description")] string Description,
         [property: JsonPropertyName("rating")] double Rating,
         [property: JsonPropertyName("address")] string Address,
