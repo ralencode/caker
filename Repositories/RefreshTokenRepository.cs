@@ -27,7 +27,7 @@ namespace Caker.Repositories
             }
         }
 
-        public async Task RevokeUserTokensAsync(int userId)
+        public async Task RevokeUserTokens(int userId)
         {
             var tokens = await GetWhere(rt => rt.UserId == userId && rt.Revoked == null);
             foreach (var token in tokens)
