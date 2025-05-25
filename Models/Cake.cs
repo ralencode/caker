@@ -5,7 +5,7 @@ using Caker.Models.Interfaces;
 
 namespace Caker.Models
 {
-    public class Cake : BaseModel, IDtoable<CakeResponse>
+    public class Cake : BaseModel, IDtoable<CakeResponse>, IAccessibleBy
     {
         [JsonPropertyName("confectioner_id")]
         public required int ConfectionerId { get; set; }
@@ -44,6 +44,24 @@ namespace Caker.Models
 
         [JsonIgnore]
         public virtual ICollection<Order>? Orders { get; set; }
+
+        public ICollection<int> AllowedUserIds
+        {
+            get
+            {
+                List<int> result = [];
+                if (IsCustom)
+                {
+                    var inOrder = Orders?.Select(o => o.Customer?.UserId).ToList() ?? [];
+                    result.AddRange((List<int>)inOrder.Where(id => id is not null));
+                }
+
+                if (Confectioner is not null)
+                    result.Add(Confectioner.UserId);
+
+                return result;
+            }
+        }
 
         public CakeResponse ToDto() =>
             new(

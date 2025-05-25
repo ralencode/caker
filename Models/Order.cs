@@ -29,7 +29,7 @@ namespace Caker.Models
         REJECTED,
     }
 
-    public class Order : BaseModel, IDtoable<OrderResponse>
+    public class Order : BaseModel, IDtoable<OrderResponse>, IAccessibleBy
     {
         [JsonPropertyName("cake_id")]
         public int CakeId { get; set; }
@@ -54,6 +54,8 @@ namespace Caker.Models
 
         [JsonPropertyName("is_custom")]
         public bool IsCustom { get; set; }
+
+        public ICollection<int> AllowedUserIds => Cake?.AllowedUserIds ?? [];
 
         public OrderResponse ToDto() =>
             new(

@@ -16,7 +16,7 @@ namespace Caker.Models
         ADMIN,
     }
 
-    public class User : BaseModel, IDtoable<UserResponse>
+    public class User : BaseModel, IDtoable<UserResponse>, IAccessibleBy
     {
         public required string Name { get; set; }
 
@@ -36,6 +36,8 @@ namespace Caker.Models
         [JsonIgnore]
         [JsonPropertyName("refresh_tokens")]
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];
+
+        public ICollection<int> AllowedUserIds => [Id];
 
         public UserResponse ToDto() =>
             new(Id, Name, PhoneNumber, Email, Type, Customer?.ToDto(), Confectioner?.ToDto());

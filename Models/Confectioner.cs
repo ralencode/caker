@@ -5,7 +5,7 @@ using Caker.Models.Interfaces;
 
 namespace Caker.Models
 {
-    public class Confectioner : BaseModel, IDtoable<ConfectionerResponse>
+    public class Confectioner : BaseModel, IDtoable<ConfectionerResponse>, IAccessibleBy
     {
         [JsonPropertyName("user_id")]
         public required int UserId { get; set; }
@@ -39,6 +39,8 @@ namespace Caker.Models
 
         [JsonIgnore]
         public virtual ICollection<Cake>? Cakes { get; set; }
+
+        public ICollection<int> AllowedUserIds => [UserId];
 
         public ConfectionerResponse ToDto() =>
             new(
