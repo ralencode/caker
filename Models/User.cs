@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Caker.Dto;
+using Caker.Models.Interfaces;
 
 namespace Caker.Models
 {

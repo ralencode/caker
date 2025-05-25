@@ -1,4 +1,4 @@
-namespace Caker.Models
+namespace Caker.Models.Interfaces
 {
     public interface IDtoable<ResponseDto>
     {
