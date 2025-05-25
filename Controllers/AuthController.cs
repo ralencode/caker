@@ -54,7 +54,7 @@ namespace Caker.Controllers
             {
                 user.Confectioner = new Confectioner
                 {
-                    UserId = user.Id!.Value,
+                    UserId = user.Id,
                     Description = request.Description ?? "",
                     Address = request.Address ?? "",
                 };
@@ -63,7 +63,7 @@ namespace Caker.Controllers
 
             if (request.Type == UserType.CUSTOMER)
             {
-                user.Customer = new Customer { UserId = user.Id!.Value };
+                user.Customer = new Customer { UserId = user.Id };
                 await _customerRepo.Create(user.Customer);
             }
 
@@ -72,7 +72,7 @@ namespace Caker.Controllers
 
         private static UserResponse MapToResponse(User user) =>
             new(
-                user.Id!.Value,
+                user.Id,
                 user.Name,
                 user.PhoneNumber,
                 user.Email,

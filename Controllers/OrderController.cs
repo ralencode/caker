@@ -28,7 +28,7 @@ namespace Caker.Controllers
             await _repo.Create(order);
 
             // Fetch the order with included Cake and Confectioner
-            var createdOrder = await _repo.GetById(order.Id!.Value);
+            var createdOrder = await _repo.GetById(order.Id);
             if (createdOrder == null)
             {
                 return NotFound();
@@ -93,7 +93,7 @@ namespace Caker.Controllers
 
         protected override OrderResponse ToDto(Order model) =>
             new(
-                model.Id!.Value,
+                model.Id,
                 model.CustomerId,
                 model.Cake!.ConfectionerId,
                 MapToCakeResponse(model.Cake),
@@ -106,7 +106,7 @@ namespace Caker.Controllers
 
         private static CakeResponse MapToCakeResponse(Cake cake) =>
             new(
-                cake.Id!.Value,
+                cake.Id,
                 cake.ConfectionerId,
                 cake.Name,
                 cake.Description,

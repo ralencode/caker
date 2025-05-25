@@ -116,7 +116,7 @@ namespace Caker.Controllers
         protected override ConfectionerResponse ToDto(Confectioner model)
         {
             return new ConfectionerResponse(
-                model.Id ?? 0,
+                model.Id,
                 model.UserId,
                 model.Description,
                 model.Rating,
