@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Caker.Data;
@@ -53,6 +54,16 @@ builder.Services.AddScoped<IImageService, LocalFileImageService>();
 // Add token service
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddHostedService<Caker.Services.ExpiredTokenCleaner>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireClaim(ClaimTypes.Role, "ADMIN"));
+    options.AddPolicy("CustomerOnly", policy => policy.RequireClaim(ClaimTypes.Role, "CUSTOMER"));
+    options.AddPolicy(
+        "ConfectionerOnly",
+        policy => policy.RequireClaim(ClaimTypes.Role, "CONFECTIONER")
+    );
+});
 
 // Add Repositories
 builder.Services.AddTransient<UserRepository>();
