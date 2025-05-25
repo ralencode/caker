@@ -1,18 +1,27 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Caker.Data;
 using Caker.Repositories;
+using Caker.Services;
 using Caker.Services.CurrentUserService;
 using Caker.Services.ImageService;
 using Caker.Services.PasswordService;
 using Caker.Services.TokenService;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure lowercase URLs
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
 // Add DbContext
@@ -38,10 +47,10 @@ builder.Services.AddCors(options =>
         "AllowSwagger",
         policy =>
         {
-            policy.WithOrigins("http://localhost:8085").AllowAnyMethod().AllowAnyHeader();
-            policy.WithOrigins("https://localhost:8085").AllowAnyMethod().AllowAnyHeader();
-            policy.WithOrigins("http://swagger:8080").AllowAnyMethod().AllowAnyHeader();
-            policy.WithOrigins("https://swagger:8080").AllowAnyMethod().AllowAnyHeader();
+            policy
+                .WithOrigins("http://localhost:8085", "https://localhost:8085")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
         }
     );
 });
@@ -54,7 +63,28 @@ builder.Services.AddScoped<IImageService, LocalFileImageService>();
 
 // Add token service
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddHostedService<Caker.Services.ExpiredTokenCleaner>();
+builder.Services.AddHostedService<ExpiredTokenCleaner>();
+
+// Add authentication and authorization
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// 🛠️ Configure JWT Authentication with Custom Cookie Handler
+builder
+    .Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = "JwtCookie";
+        options.DefaultChallengeScheme = "JwtCookie";
+    })
+    .AddScheme<JwtBearerOptions, JwtCookieHandler>(
+        "JwtCookie",
+        options =>
+        {
+            var jwtSettings = builder.Configuration.GetSection("Jwt");
+            options.Authority = jwtSettings["Issuer"];
+            options.Audience = jwtSettings["Audience"];
+        }
+    );
 
 builder.Services.AddAuthorization(options =>
 {
@@ -65,9 +95,6 @@ builder.Services.AddAuthorization(options =>
         policy => policy.RequireClaim(ClaimTypes.Role, "CONFECTIONER")
     );
 });
-
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Add Repositories
 builder.Services.AddTransient<UserRepository>();
@@ -85,12 +112,12 @@ builder
         options.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter(namingPolicy: JsonNamingPolicy.SnakeCaseLower)
         );
+        options.JsonSerializerOptions.NumberHandling =
+            JsonNumberHandling.AllowNamedFloatingPointLiterals;
     });
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddEndpointsApiExplorer();
-
 // Add Swagger
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc(
@@ -108,6 +135,7 @@ builder.Services.AddSwaggerGen(c =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
 
+    // Add Bearer token support to Swagger
     c.AddSecurityDefinition(
         "Bearer",
         new OpenApiSecurityScheme
@@ -120,50 +148,51 @@ builder.Services.AddSwaggerGen(c =>
             Scheme = "Bearer",
         }
     );
+
+    c.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                },
+                Array.Empty<string>()
+            },
+        }
+    );
 });
 
 var app = builder.Build();
 
+// Apply database migrations
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CakerDbContext>();
-    db.Database.Migrate();
+    await db.Database.MigrateAsync();
 }
 
-// Add error handling
+// Middleware pipeline
 app.UseExceptionHandler("/error");
 app.Map(
     "/error",
     (HttpContext context) => Results.Problem(statusCode: context.Response.StatusCode)
 );
 
-// Use swagger
-app.UseCors("AllowSwagger");
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Caker API v1");
-});
-
-// Exception handler
-app.UseExceptionHandler(exceptionHandlerApp =>
-{
-    exceptionHandlerApp.Run(async context =>
-    {
-        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        context.Response.ContentType = "application/json";
-
-        await context.Response.WriteAsync(
-            JsonSerializer.Serialize(
-                new { error = "An unexpected error occurred", requestId = context.TraceIdentifier }
-            )
-        );
-    });
-});
-
 app.UseHttpsRedirection();
-
 app.UseRouting();
+
+// Apply CORS, Authentication, and Authorization
+app.UseCors("AllowSwagger");
+app.UseAuthentication(); // Must come before UseAuthorization
+app.UseAuthorization();
+
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Caker API v1"));
 
 app.MapControllers();
 

@@ -1,10 +1,8 @@
-using System.Numerics;
 using System.Text.Json.Serialization;
 
 namespace Caker.Dto
 {
     public record CreateRegularCakeRequest(
-        [property: JsonPropertyName("confectioner")] int ConfectionerId,
         [property: JsonPropertyName("name")] string Name,
         [property: JsonPropertyName("description")] string Description,
         [property: JsonPropertyName("diameter")] double Diameter,
