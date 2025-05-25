@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Caker.Models;
@@ -14,7 +15,7 @@ namespace Caker.Controllers
     public abstract class BaseController<TModel, TDto, TCreateDto, TUpdateDto>(
         BaseRepository<TModel> repository
     ) : ControllerBase
-        where TModel : BaseModel, IDtoable<TDto>
+        where TModel : BaseModel, IDtoable<TDto>, IAccessibleBy
         where TCreateDto : class
         where TUpdateDto : class
     {
@@ -22,6 +23,18 @@ namespace Caker.Controllers
 
         protected abstract TModel CreateModel(TCreateDto dto);
         protected abstract void UpdateModel(TModel model, TUpdateDto dto);
+
+        protected virtual bool CheckPermissions(TModel model)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+                return false;
+
+            int currentUserId = int.Parse(userIdClaim);
+            bool isAdmin = User.IsInRole("ADMIN");
+
+            return isAdmin || model.AllowedUserIds.Contains(currentUserId);
+        }
 
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<TDto>>> GetAll()
