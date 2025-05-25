@@ -15,6 +15,7 @@ namespace Caker.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().HasIndex(u => u.PhoneNumber).IsUnique();
+            modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.Token).IsUnique();
 
             modelBuilder
                 .Entity<Customer>()
@@ -30,6 +31,12 @@ namespace Caker.Data
                 .HasForeignKey<Confectioner>(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder
+                .Entity<RefreshToken>()
+                .HasOne(rt => rt.User)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder
                 .Entity<Cake>()
