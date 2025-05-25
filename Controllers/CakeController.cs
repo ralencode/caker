@@ -95,7 +95,7 @@ namespace Caker.Controllers
         protected override CakeResponse ToDto(Cake cake)
         {
             return new(
-                cake.Id!.Value,
+                cake.Id,
                 cake.ConfectionerId,
                 cake.Name,
                 cake.Description,
