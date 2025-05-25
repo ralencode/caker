@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    name: Build and Validate
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
     - name: Validate code style
       run: dotnet format ./Caker.sln --verify-no-changes 
   test:
-    name: Run Tests (.NET ${{ matrix.dotnet }})
+    name: Tests
     needs: build
     runs-on: ${{ matrix.os }}
     strategy:
@@ -105,13 +105,11 @@ jobs:
         vuln-type: 'os,library'
 
   deploy:
-    name: Deploy to Production
+    name: Deploy
     needs: docker
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    environment: 
-      name: Production
-      url: https://your-production-url.com  # Замените на реальный URL
+    environment: Actions
 
     steps:
     - name: Deploy to server
