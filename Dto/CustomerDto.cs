@@ -4,6 +4,8 @@ namespace Caker.Dto
 {
     public record CustomerResponse(
         [property: JsonPropertyName("id")] int Id,
-        [property: JsonPropertyName("user_id")] int UserId
+        [property: JsonPropertyName("name")] string Name,
+        [property: JsonPropertyName("phone")] string Phone,
+        [property: JsonPropertyName("email")] string Email
     );
 }

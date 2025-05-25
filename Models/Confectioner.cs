@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Caker.Dto;
 
 namespace Caker.Models
 {
-    public class Confectioner : BaseModel
+    public class Confectioner : BaseModel, IDtoable<ConfectionerResponse>
     {
         [JsonPropertyName("user_id")]
         public required int UserId { get; set; }
@@ -38,7 +39,22 @@ namespace Caker.Models
         [JsonIgnore]
         public virtual ICollection<Cake>? Cakes { get; set; }
 
-        [JsonIgnore]
-        public virtual ICollection<Feedback>? Feedbacks { get; set; }
+        public ConfectionerResponse ToDto() =>
+            new(
+                Id,
+                User!.Name,
+                User.PhoneNumber,
+                User.Email,
+                Description,
+                Rating,
+                Address,
+                MinDiameter,
+                MaxDiameter,
+                MinEta,
+                MaxEta,
+                Fillings ?? [],
+                DoImages,
+                DoShapes
+            );
     }
 }

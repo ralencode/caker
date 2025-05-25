@@ -31,7 +31,5 @@ namespace Caker.Controllers
 
         protected override void UpdateModel(Customer model, object dto) =>
             throw new NotImplementedException();
-
-        protected override CustomerResponse ToDto(Customer model) => new(model.Id, model.UserId);
     }
 }

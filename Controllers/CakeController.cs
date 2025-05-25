@@ -40,7 +40,7 @@ namespace Caker.Controllers
             };
 
             await _repo.Create(cake);
-            return CreatedAtAction(nameof(_repo.GetById), new { id = cake.Id }, ToDto(cake));
+            return CreatedAtAction(nameof(_repo.GetById), new { id = cake.Id }, cake.ToDto());
         }
 
         [HttpPost("custom")]
@@ -74,7 +74,7 @@ namespace Caker.Controllers
             };
 
             await _repo.Create(cake);
-            return CreatedAtAction(nameof(_repo.GetById), new { id = cake.Id }, ToDto(cake));
+            return CreatedAtAction(nameof(_repo.GetById), new { id = cake.Id }, cake.ToDto());
         }
 
         [HttpGet("confectioner/{confectionerId}")]
@@ -89,29 +89,7 @@ namespace Caker.Controllers
                 return NotFound(new { message = "No cakes found for this confectioner." });
             }
 
-            return Ok(cakes.Select(ToDto));
-        }
-
-        protected override CakeResponse ToDto(Cake cake)
-        {
-            return new(
-                cake.Id,
-                cake.ConfectionerId,
-                cake.Name,
-                cake.Description,
-                cake.Fillings,
-                cake.ReqTime,
-                cake.Color,
-                $"assets/{cake.ImagePath}",
-                cake.Price,
-                cake.Diameter,
-                cake.Weight,
-                cake.Text,
-                cake.TextSize,
-                cake.TextX,
-                cake.TextY,
-                cake.IsCustom
-            );
+            return Ok(cakes.Select(c => c.ToDto()));
         }
 
         protected override Cake CreateModel(CreateCustomCakeRequest dto) =>

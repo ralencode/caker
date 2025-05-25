@@ -29,7 +29,7 @@ namespace Caker.Controllers
             if (!_passwordService.VerifyPassword(request.Password, user.Password))
                 return Unauthorized();
 
-            return Ok(MapToResponse(user));
+            return Ok(user.ToDto());
         }
 
         [HttpPost("register")]
@@ -67,7 +67,7 @@ namespace Caker.Controllers
                 await _customerRepo.Create(user.Customer);
             }
 
-            return CreatedAtAction(nameof(Login), MapToResponse(user));
+            return CreatedAtAction(nameof(Login), user.ToDto());
         }
 
         private static UserResponse MapToResponse(User user) =>
