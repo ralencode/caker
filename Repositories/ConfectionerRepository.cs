@@ -4,11 +4,12 @@ using Caker.Models;
 
 namespace Caker.Repositories
 {
-    public class ConfectionerRepository(CakerDbContext context) : BaseRepository<Confectioner>(context)
+    public class ConfectionerRepository(CakerDbContext context)
+        : BaseRepository<Confectioner>(context)
     {
         protected override Expression<Func<Confectioner, object?>>[] GetIncludes()
         {
-            return [c => c.User, c => c.Feedbacks, c => c.Cakes];
+            return [c => c.User, c => c.Cakes];
         }
     }
 }

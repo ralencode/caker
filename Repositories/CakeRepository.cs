@@ -8,7 +8,7 @@ namespace Caker.Repositories
     {
         protected override Expression<Func<Cake, object?>>[] GetIncludes()
         {
-            return [c => c.Confectioner, c => c.Orders, c => c.Feedbacks];
+            return [c => c.Confectioner, c => c.Orders];
         }
 
         public async Task<IEnumerable<Cake>?> GetByConfectioner(int confectionerId)

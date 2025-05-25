@@ -55,8 +55,6 @@ builder.Services.AddTransient<OrderRepository>();
 builder.Services.AddTransient<ConfectionerRepository>();
 builder.Services.AddTransient<CustomerRepository>();
 builder.Services.AddTransient<CakeRepository>();
-builder.Services.AddTransient<FeedbackRepository>();
-builder.Services.AddTransient<MessageRepository>();
 
 // Add Controllers
 builder
