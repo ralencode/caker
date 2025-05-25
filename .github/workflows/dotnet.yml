@@ -12,6 +12,7 @@ env:
 
 jobs:
   build:
+    name: Build and Validate
     runs-on: ubuntu-latest
 
     steps:
@@ -37,28 +38,34 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
-    - name: Check code style
+    - name: Validate code style
       run: dotnet format --verify-no-changes
 
   test:
+    name: Run Tests (.NET ${{ matrix.dotnet }})
     needs: build
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
         dotnet: [9.0.x]
-        # Расширьте матрицу при необходимости:
-        # os: [ubuntu-latest, windows-latest]
-        # dotnet: [8.0.x, 9.0.x]
 
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ matrix.dotnet }}
-    - run: dotnet test --no-build --verbosity normal
+    - run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.os }}-${{ matrix.dotnet }}
+        path: '**/TestResults/*.trx'
 
   docker:
+    name: Build and Push Docker Image
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -86,6 +93,8 @@ jobs:
         tags: |
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        labels: |
+          org.opencontainers.image.source=${{ github.repository_url }}
 
     - name: Scan Docker image
       uses: aquasecurity/trivy-action@master
@@ -97,10 +106,13 @@ jobs:
         vuln-type: 'os,library'
 
   deploy:
+    name: Deploy to Production
     needs: docker
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    environment: Actions
+    environment: 
+      name: Production
+      url: https://your-production-url.com  # Замените на реальный URL
 
     steps:
     - name: Deploy to server
