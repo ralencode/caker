@@ -7,18 +7,20 @@ namespace Caker.Controllers
 {
     [ApiController]
     [Route("api/confectioners")]
-    public class ConfectionerController(ConfectionerRepository repo)
+    public class ConfectionerController(ConfectionerRepository repository)
         : BaseController<
             Confectioner,
             ConfectionerResponse,
             CreateConfectionerRequest,
             UpdateConfectionerRequest
-        >(repo)
+        >(repository)
     {
+        private readonly ConfectionerRepository _repo = repository;
+
         [HttpGet("{id}/settings")]
         public async Task<ActionResult<ConfectionerSettingsResponse>> GetSettings(int id)
         {
-            var confectioner = await _repository.GetById(id);
+            var confectioner = await _repo.GetById(id);
             if (confectioner == null)
                 return NotFound();
 
@@ -42,7 +44,7 @@ namespace Caker.Controllers
             [FromBody] UpdateConfectionerSettingsRequest request
         )
         {
-            var confectioner = await _repository.GetById(id);
+            var confectioner = await _repo.GetById(id);
             if (confectioner == null)
                 return NotFound();
 
@@ -54,7 +56,7 @@ namespace Caker.Controllers
             confectioner.DoImages = request.DoImages;
             confectioner.DoShapes = request.DoShapes;
 
-            await _repository.Update(confectioner);
+            await _repo.Update(confectioner);
             return Ok(
                 new ConfectionerSettingsResponse(
                     confectioner.Id,

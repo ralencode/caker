@@ -8,10 +8,12 @@ namespace Caker.Controllers
 {
     [ApiController]
     [Route("api/cakes")]
-    public class CakeController(CakeRepository repo, IImageService imageService)
-        : BaseController<Cake, CakeResponse, CreateCustomCakeRequest, UpdateCustomCakeRequest>(repo)
+    public class CakeController(CakeRepository repository, IImageService imageService)
+        : BaseController<Cake, CakeResponse, CreateCustomCakeRequest, UpdateCustomCakeRequest>(
+            repository
+        )
     {
-        private readonly CakeRepository _repo = repo;
+        private readonly CakeRepository _repo = repository;
         private readonly IImageService _imageService = imageService;
 
         [HttpPost("regular")]

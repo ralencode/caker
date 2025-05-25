@@ -7,10 +7,12 @@ namespace Caker.Controllers
 {
     [ApiController]
     [Route("api/orders")]
-    public class OrderController(OrderRepository repo)
-        : BaseController<Order, OrderResponse, CreateOrderFullRequest, UpdateOrderFullRequest>(repo)
+    public class OrderController(OrderRepository repository)
+        : BaseController<Order, OrderResponse, CreateOrderFullRequest, UpdateOrderFullRequest>(
+            repository
+        )
     {
-        readonly OrderRepository _repo = repo;
+        private readonly OrderRepository _repo = repository;
 
         [HttpPost]
         public async Task<ActionResult<OrderResponse>> Create([FromBody] CreateOrderRequest request)
@@ -57,7 +59,7 @@ namespace Caker.Controllers
                 CreationDate = DateTime.UtcNow,
             };
 
-            await _repository.Create(order);
+            await _repo.Create(order);
             return CreatedAtAction(nameof(GetById), new { id = order.Id }, order.ToDto());
         }
 
