@@ -8,14 +8,14 @@ namespace Caker.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Confectioner> Confectioners { get; set; }
-        public DbSet<Message> Messages { get; set; }
         public DbSet<Cake> Cakes { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().HasIndex(u => u.PhoneNumber).IsUnique();
+            modelBuilder.Entity<RefreshToken>().HasIndex(rt => rt.Token).IsUnique();
 
             modelBuilder
                 .Entity<Customer>()
@@ -32,18 +32,11 @@ namespace Caker.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder
-                .Entity<Message>()
-                .HasOne(m => m.From)
-                .WithMany(u => u.MessagesFrom)
-                .HasForeignKey(m => m.FromId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder
-                .Entity<Message>()
-                .HasOne(m => m.To)
-                .WithMany(u => u.MessagesTo)
-                .HasForeignKey(m => m.ToId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .Entity<RefreshToken>()
+                .HasOne(rt => rt.User)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder
                 .Entity<Cake>()
@@ -64,27 +57,6 @@ namespace Caker.Data
                 .HasOne(o => o.Customer)
                 .WithMany(c => c.Orders)
                 .HasForeignKey(o => o.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder
-                .Entity<Feedback>()
-                .HasOne(f => f.Confectioner)
-                .WithMany(c => c.Feedbacks)
-                .HasForeignKey(f => f.ConfectionerId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder
-                .Entity<Feedback>()
-                .HasOne(f => f.Customer)
-                .WithMany(c => c.Feedbacks)
-                .HasForeignKey(f => f.CustomerId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder
-                .Entity<Feedback>()
-                .HasOne(f => f.Cake)
-                .WithMany(c => c.Feedbacks)
-                .HasForeignKey(f => f.CakeId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

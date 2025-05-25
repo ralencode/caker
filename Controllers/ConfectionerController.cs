@@ -1,28 +1,59 @@
 using Caker.Dto;
 using Caker.Models;
 using Caker.Repositories;
+using Caker.Services.CurrentUserService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Caker.Controllers
 {
     [ApiController]
     [Route("api/confectioners")]
-    public class ConfectionerController(ConfectionerRepository repo)
+    public class ConfectionerController(
+        ConfectionerRepository repository,
+        ICurrentUserService currentUserService
+    )
         : BaseController<
             Confectioner,
             ConfectionerResponse,
             CreateConfectionerRequest,
             UpdateConfectionerRequest
-        >(repo)
+        >(repository, currentUserService)
     {
+        private readonly ConfectionerRepository _repo = repository;
+        private readonly ICurrentUserService _currUserService = currentUserService;
+
+        /// <summary>
+        /// Get settings by id.
+        /// </summary>
         [HttpGet("{id}/settings")]
         public async Task<ActionResult<ConfectionerSettingsResponse>> GetSettings(int id)
         {
-            var confectioner = await _repository.GetById(id);
+            var confectioner = await _repo.GetById(id);
             if (confectioner == null)
                 return NotFound();
 
-            return Ok(
+            return GetSettings(confectioner);
+        }
+
+        /// <summary>
+        /// Get settings by token from cookies.
+        /// </summary>
+        [HttpGet("self/settings")]
+        public async Task<ActionResult<ConfectionerSettingsResponse>> GetSettings()
+        {
+            var user = await _currUserService.GetUser();
+            if (user == null)
+                return Forbid();
+
+            var confectioner = user.Confectioner;
+            if (confectioner == null)
+                return NotFound();
+
+            return GetSettings(confectioner);
+        }
+
+        private ActionResult<ConfectionerSettingsResponse> GetSettings(Confectioner confectioner) =>
+            Ok(
                 new ConfectionerSettingsResponse(
                     confectioner.Id,
                     confectioner.MinDiameter,
@@ -34,18 +65,47 @@ namespace Caker.Controllers
                     confectioner.DoShapes
                 )
             );
-        }
 
+        /// <summary>
+        /// Update settings by id.
+        /// </summary>
         [HttpPut("{id}/settings")]
         public async Task<ActionResult<ConfectionerSettingsResponse>> UpdateSettings(
             int id,
             [FromBody] UpdateConfectionerSettingsRequest request
         )
         {
-            var confectioner = await _repository.GetById(id);
+            var confectioner = await _repo.GetById(id);
             if (confectioner == null)
                 return NotFound();
 
+            return await UpdateSettings(confectioner, request);
+        }
+
+        /// <summary>
+        /// Update settings by token from cookies.
+        /// </summary>
+        [HttpPut("self/settings")]
+        public async Task<ActionResult<ConfectionerSettingsResponse>> UpdateSettings(
+            [FromBody] UpdateConfectionerSettingsRequest request
+        )
+        {
+            var user = await _currUserService.GetUser();
+            if (user == null)
+                return Forbid();
+
+            var confectioner = user.Confectioner;
+            if (confectioner == null)
+                return NotFound();
+
+            return await UpdateSettings(confectioner, request);
+        }
+
+        private async Task<ActionResult<ConfectionerSettingsResponse>> UpdateSettings(
+            Confectioner confectioner,
+            UpdateConfectionerSettingsRequest request
+        )
+        {
             confectioner.MinDiameter = request.MinDiameter;
             confectioner.MaxDiameter = request.MaxDiameter;
             confectioner.MinEta = request.MinETADays;
@@ -54,7 +114,7 @@ namespace Caker.Controllers
             confectioner.DoImages = request.DoImages;
             confectioner.DoShapes = request.DoShapes;
 
-            await _repository.Update(confectioner);
+            await _repo.Update(confectioner);
             return Ok(
                 new ConfectionerSettingsResponse(
                     confectioner.Id,
@@ -111,24 +171,6 @@ namespace Caker.Controllers
                 model.DoShapes = dto.DoShapes.Value;
             if (dto.Rating.HasValue)
                 model.Rating = dto.Rating.Value;
-        }
-
-        protected override ConfectionerResponse ToDto(Confectioner model)
-        {
-            return new ConfectionerResponse(
-                model.Id ?? 0,
-                model.UserId,
-                model.Description,
-                model.Rating,
-                model.Address,
-                model.MinDiameter,
-                model.MaxDiameter,
-                model.MinEta,
-                model.MaxEta,
-                model.Fillings ?? [],
-                model.DoImages,
-                model.DoShapes
-            );
         }
     }
 }

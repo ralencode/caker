@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Caker.Dto;
+using Caker.Models.Interfaces;
 
 namespace Caker.Models
 {
@@ -14,7 +16,7 @@ namespace Caker.Models
         ADMIN,
     }
 
-    public class User : BaseModel
+    public class User : BaseModel, IDtoable<UserResponse>, IAccessibleBy
     {
         public required string Name { get; set; }
 
@@ -32,11 +34,12 @@ namespace Caker.Models
         public virtual Confectioner? Confectioner { get; set; }
 
         [JsonIgnore]
-        [JsonPropertyName("messages_from")]
-        public virtual ICollection<Message>? MessagesFrom { get; set; }
+        [JsonPropertyName("refresh_tokens")]
+        public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
-        [JsonIgnore]
-        [JsonPropertyName("messages_to")]
-        public virtual ICollection<Message>? MessagesTo { get; set; }
+        public ICollection<int> AllowedUserIds => [Id];
+
+        public UserResponse ToDto() =>
+            new(Id, Name, PhoneNumber, Email, Type, Customer?.ToDto(), Confectioner?.ToDto());
     }
 }
