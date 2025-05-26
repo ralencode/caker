@@ -97,6 +97,8 @@ namespace Caker.Controllers
                 Name = dto.Name,
                 PhoneNumber = dto.Phone,
                 Email = dto.Email,
+                Address = dto.Address,
+                Description = dto.Description,
                 Password = _passwordService.HashPassword(dto.Password),
                 Type = dto.Type,
             };
@@ -109,6 +111,10 @@ namespace Caker.Controllers
                 model.PhoneNumber = dto.Phone;
             if (dto.Email != null)
                 model.Email = dto.Email;
+            if (dto.Description is not null)
+                model.Description = dto.Description;
+            if (dto.Address is not null)
+                model.Address = dto.Address;
             if (dto.Type.HasValue)
                 model.Type = dto.Type.Value;
         }
