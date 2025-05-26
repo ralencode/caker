@@ -53,6 +53,17 @@ builder.Services.AddCors(options =>
                 .AllowAnyHeader();
         }
     );
+
+    options.AddPolicy(
+        "AllowFrontend",
+        policy =>
+        {
+            policy
+                .WithOrigins("https://your-frontend-domain.com")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        }
+    );
 });
 
 // Add password service
@@ -69,22 +80,30 @@ builder.Services.AddHostedService<ExpiredTokenCleaner>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-// 🛠️ Configure JWT Authentication with Custom Cookie Handler
+// Configure JWT Authentication with Bearer header
 builder
     .Services.AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = "JwtCookie";
-        options.DefaultChallengeScheme = "JwtCookie";
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddScheme<JwtBearerOptions, JwtCookieHandler>(
-        "JwtCookie",
-        options =>
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("Jwt");
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            var jwtSettings = builder.Configuration.GetSection("Jwt");
-            options.Authority = jwtSettings["Issuer"];
-            options.Audience = jwtSettings["Audience"];
-        }
-    );
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings["Key"]!)
+            ),
+            ClockSkew = TimeSpan.Zero,
+        };
+    });
 
 builder.Services.AddAuthorization(options =>
 {
@@ -188,6 +207,7 @@ app.UseRouting();
 
 // Apply CORS, Authentication, and Authorization
 app.UseCors("AllowSwagger");
+app.UseCors("AllowFrontend");
 app.UseAuthentication(); // Must come before UseAuthorization
 app.UseAuthorization();
 

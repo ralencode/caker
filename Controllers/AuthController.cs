@@ -29,19 +29,30 @@ namespace Caker.Controllers
         private readonly IConfiguration _config = config;
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserResponse>> Login([FromBody] LoginRequest request)
+        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
         {
             var user = await _userRepo.GetByPhoneNumber(request.Phone);
-            if (user == null)
-                return NotFound();
-            if (!_passwordService.VerifyPassword(request.Password, user.Password))
+            if (user == null || !_passwordService.VerifyPassword(request.Password, user.Password))
                 return Unauthorized();
 
-            var accesToken = _tokenService.GenerateAccessToken(user);
+            var accessToken = _tokenService.GenerateAccessToken(user);
             var refreshToken = await CreateRefreshToken(user);
 
-            SetTokenCookies(accesToken, refreshToken.Token);
-            return Ok(user.ToDto());
+            var userDto = user.ToDto();
+
+            return Ok(
+                new AuthResponse(
+                    userDto.Id,
+                    userDto.Name,
+                    userDto.Phone,
+                    userDto.Email,
+                    userDto.Type,
+                    userDto.Customer,
+                    userDto.Confectioner,
+                    accessToken,
+                    refreshToken.Token
+                )
+            );
         }
 
         [HttpPost("register")]
@@ -82,50 +93,58 @@ namespace Caker.Controllers
             var accessToken = _tokenService.GenerateAccessToken(user);
             var refreshToken = await CreateRefreshToken(user);
 
-            SetTokenCookies(accessToken, refreshToken.Token);
+            var userDto = user.ToDto();
 
-            return CreatedAtAction(nameof(Login), user.ToDto());
+            return CreatedAtAction(
+                nameof(Login),
+                new AuthResponse(
+                    userDto.Id,
+                    userDto.Name,
+                    userDto.Phone,
+                    userDto.Email,
+                    userDto.Type,
+                    userDto.Customer,
+                    userDto.Confectioner,
+                    accessToken,
+                    refreshToken.Token
+                )
+            );
         }
 
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshToken()
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-            if (string.IsNullOrEmpty(refreshToken))
-                return Unauthorized("string.IsNullOrEmpty(refreshToken)");
+            if (!Request.Headers.TryGetValue("Authorization", out var authorizationHeader))
+                return Unauthorized("Missing Authorization header");
+
+            var headerValue = authorizationHeader.ToString();
+            if (!headerValue.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                return Unauthorized("Invalid token scheme");
+
+            var refreshToken = headerValue["Bearer ".Length..].Trim();
 
             var storedToken = await _refreshTokenRepo.GetByToken(refreshToken);
             if (storedToken == null || storedToken.IsExpired || !storedToken.IsActive)
-            {
-                return Unauthorized(
-                    "storedToken == null || storedToken.IsExpired || !storedToken.IsActive"
-                );
-            }
+                return Unauthorized();
 
             var user = await _userRepo.GetById(storedToken.UserId);
             if (user == null)
-                return Unauthorized("user == null");
+                return Unauthorized();
 
             var newAccessToken = _tokenService.GenerateAccessToken(user);
             var newRefreshToken = await CreateRefreshToken(user);
             await RevokeRefreshToken(storedToken);
 
-            SetTokenCookies(newAccessToken, newRefreshToken.Token);
-            return Ok();
+            return Ok(new RefreshResponse(newAccessToken, newRefreshToken.Token));
         }
 
         [HttpPost("revoke")]
         [Authorize]
-        public async Task<IActionResult> RevokeToken()
+        public async Task<IActionResult> RevokeToken([FromBody] RefreshTokenRequest request)
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-            if (string.IsNullOrEmpty(refreshToken))
-                return BadRequest();
-
-            var storedToken = await _refreshTokenRepo.GetByToken(refreshToken);
+            var storedToken = await _refreshTokenRepo.GetByToken(request.Token);
             if (storedToken == null)
                 return BadRequest();
-
             await RevokeRefreshToken(storedToken);
             return NoContent();
         }
@@ -149,37 +168,6 @@ namespace Caker.Controllers
         {
             token.Revoked = DateTime.UtcNow;
             await _refreshTokenRepo.Update(token);
-        }
-
-        private void SetTokenCookies(string accessToken, string refreshToken)
-        {
-            Response.Cookies.Append(
-                "accessToken",
-                accessToken,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddMinutes(
-                        _config.GetValue<int>("Jwt:AccessTokenExpiryMinutes")
-                    ),
-                }
-            );
-
-            Response.Cookies.Append(
-                "refreshToken",
-                refreshToken,
-                new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddDays(
-                        _config.GetValue<int>("Jwt:RefreshTokenExpiryDays")
-                    ),
-                }
-            );
         }
     }
 }
