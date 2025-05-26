@@ -13,9 +13,7 @@ namespace Caker.Models
         [JsonIgnore]
         [ForeignKey("UserId")]
         public virtual User? User { get; set; }
-        public required string Description { get; set; } = "";
         public double Rating { get; set; } = 0.0;
-        public required string Address { get; set; }
 
         [JsonPropertyName("max_diameter")]
         public double MaxDiameter { get; set; } = 100.0;
@@ -57,9 +55,9 @@ namespace Caker.Models
                 User!.Name,
                 User.PhoneNumber,
                 User.Email,
-                Description,
+                User.Description ?? "",
                 Rating,
-                Address,
+                User.Address ?? "",
                 MinDiameter,
                 MaxDiameter,
                 MinEta,
