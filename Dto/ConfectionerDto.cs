@@ -27,9 +27,7 @@ namespace Caker.Dto
 
     public record CreateConfectionerRequest(
         [property: JsonPropertyName("user_id")] int UserId,
-        [property: JsonPropertyName("description")] string Description,
         [property: JsonPropertyName("rating")] double Rating,
-        [property: JsonPropertyName("address")] string Address,
         [property: JsonPropertyName("min_diameter")] double MinDiameter,
         [property: JsonPropertyName("max_diameter")] double MaxDiameter,
         [property: JsonPropertyName("min_eta_days")] int MinEta,
@@ -42,9 +40,7 @@ namespace Caker.Dto
 
     public record UpdateConfectionerRequest(
         [property: JsonPropertyName("user_id")] int? UserId,
-        [property: JsonPropertyName("description")] string? Description,
         [property: JsonPropertyName("rating")] double? Rating,
-        [property: JsonPropertyName("address")] string? Address,
         [property: JsonPropertyName("min_diameter")] double? MinDiameter,
         [property: JsonPropertyName("max_diameter")] double? MaxDiameter,
         [property: JsonPropertyName("min_eta_days")] int? MinEta,
