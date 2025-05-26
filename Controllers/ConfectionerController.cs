@@ -137,8 +137,6 @@ namespace Caker.Controllers
             return new Confectioner
             {
                 UserId = dto.UserId,
-                Description = dto.Description,
-                Address = dto.Address,
                 MinDiameter = dto.MinDiameter,
                 MaxDiameter = dto.MaxDiameter,
                 MinEta = dto.MinEta,
@@ -155,10 +153,6 @@ namespace Caker.Controllers
         {
             if (dto.UserId.HasValue)
                 model.UserId = dto.UserId.Value;
-            if (dto.Description is not null)
-                model.Description = dto.Description;
-            if (dto.Address is not null)
-                model.Address = dto.Address;
             if (dto.MinDiameter.HasValue)
                 model.MinDiameter = dto.MinDiameter.Value;
             if (dto.MaxDiameter.HasValue)
