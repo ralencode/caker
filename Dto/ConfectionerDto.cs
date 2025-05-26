@@ -72,4 +72,16 @@ namespace Caker.Dto
         [property: JsonPropertyName("do_shapes")] bool DoShapes,
         [property: JsonPropertyName("do_custom")] bool DoCustom
     );
+
+    public record ConfectionerBalanceResponse(
+        [property: JsonPropertyName("balance_available")] int BalanceAvailable,
+        [property: JsonPropertyName("balance_freezed")] int BalanceFreezed
+    );
+
+    public record WithdrawRequest(
+        [property: JsonPropertyName("amount")] int Amount,
+        [property: JsonPropertyName("card_number")] string CardNumber,
+        [property: JsonPropertyName("expiration_date")] string ExpirationDate,
+        [property: JsonPropertyName("cvc")] string Cvc
+    );
 }

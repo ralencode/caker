@@ -47,4 +47,11 @@ namespace Caker.Dto
         [property: JsonPropertyName("created_at")] DateTime CreatedAt,
         [property: JsonPropertyName("is_custom")] bool IsCustom
     );
+
+    public record PaymentRequest(
+        [property: JsonPropertyName("order_id")] int OrderId,
+        [property: JsonPropertyName("card_number")] string CardNumber,
+        [property: JsonPropertyName("expiration_date")] string ExpirationDate,
+        [property: JsonPropertyName("cvc")] string Cvc
+    );
 }
