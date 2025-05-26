@@ -116,7 +116,7 @@ namespace Caker.Controllers
         }
 
         [Authorize]
-        [HttpPost("custom/self")]
+        [HttpPost("custom")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<CakeResponse>> CreateCustom(
             [FromForm] CreateCustomCakeRequest request
