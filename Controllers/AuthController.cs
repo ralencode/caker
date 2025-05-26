@@ -46,6 +46,8 @@ namespace Caker.Controllers
                     userDto.Name,
                     userDto.Phone,
                     userDto.Email,
+                    userDto.Address,
+                    userDto.Description,
                     userDto.Type,
                     userDto.Customer,
                     userDto.Confectioner,
@@ -67,6 +69,8 @@ namespace Caker.Controllers
                 Name = request.Name,
                 PhoneNumber = request.Phone,
                 Email = request.Email,
+                Description = request.Description ?? "",
+                Address = request.Address ?? "",
                 Password = _passwordService.HashPassword(request.Password),
                 Type = request.Type,
             };
@@ -75,12 +79,7 @@ namespace Caker.Controllers
 
             if (request.Type == UserType.CONFECTIONER)
             {
-                user.Confectioner = new Confectioner
-                {
-                    UserId = user.Id,
-                    Description = request.Description ?? "",
-                    Address = request.Address ?? "",
-                };
+                user.Confectioner = new Confectioner { UserId = user.Id };
                 await _confectionerRepo.Create(user.Confectioner);
             }
 
@@ -102,6 +101,8 @@ namespace Caker.Controllers
                     userDto.Name,
                     userDto.Phone,
                     userDto.Email,
+                    userDto.Address,
+                    userDto.Description,
                     userDto.Type,
                     userDto.Customer,
                     userDto.Confectioner,

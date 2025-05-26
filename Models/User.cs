@@ -27,6 +27,10 @@ namespace Caker.Models
         [JsonPropertyName("phone_number")]
         public required string PhoneNumber { get; set; }
 
+        public string? Address { get; set; } = "";
+
+        public string? Description { get; set; } = "";
+
         public UserType Type { get; set; }
 
         public virtual Customer? Customer { get; set; }
@@ -40,6 +44,16 @@ namespace Caker.Models
         public ICollection<int> AllowedUserIds => [Id];
 
         public UserResponse ToDto() =>
-            new(Id, Name, PhoneNumber, Email, Type, Customer?.ToDto(), Confectioner?.ToDto());
+            new(
+                Id,
+                Name,
+                PhoneNumber,
+                Email,
+                Address,
+                Description,
+                Type,
+                Customer?.ToDto(),
+                Confectioner?.ToDto()
+            );
     }
 }
