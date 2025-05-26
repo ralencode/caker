@@ -38,6 +38,12 @@ namespace Caker.Models
         [JsonPropertyName("do_custom")]
         public bool DoCustom { get; set; }
 
+        [JsonPropertyName("balance_available")]
+        public int BalanceAvailable { get; set; }
+
+        [JsonPropertyName("balance_freezed")]
+        public int BalanceFreezed { get; set; }
+
         [JsonIgnore]
         public virtual ICollection<Cake>? Cakes { get; set; }
 
