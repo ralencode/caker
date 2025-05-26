@@ -144,6 +144,7 @@ namespace Caker.Controllers
                 Name = request.Name ?? "Custom cake",
                 Description = request.Description,
                 Price = request.Price ?? 0,
+                ImageScale = request.ImageScale,
             };
 
             await _repo.Create(cake);
@@ -206,6 +207,7 @@ namespace Caker.Controllers
                 TextSize = dto.TextSize,
                 TextX = dto.TextX,
                 TextY = dto.TextY,
+                ImageScale = dto.ImageScale,
             };
 
         protected override void UpdateModel(Cake model, UpdateCustomCakeRequest dto)
@@ -232,6 +234,8 @@ namespace Caker.Controllers
                 model.TextX = dto.TextX.Value;
             if (dto.TextY.HasValue)
                 model.TextY = dto.TextY.Value;
+            if (dto.ImageScale.HasValue)
+                model.TextY = dto.ImageScale.Value;
         }
     }
 }
