@@ -18,7 +18,7 @@ namespace Caker.Models
         public required string Address { get; set; }
 
         [JsonPropertyName("max_diameter")]
-        public double MaxDiameter { get; set; } = double.PositiveInfinity;
+        public double MaxDiameter { get; set; } = 100.0;
 
         [JsonPropertyName("min_diameter")]
         public double MinDiameter { get; set; } = 0.0;
