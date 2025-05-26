@@ -132,6 +132,25 @@ namespace Caker.Controllers
             );
         }
 
+        [HttpGet("self/balance")]
+        public async Task<ActionResult<ConfectionerBalanceResponse>> GetBalance()
+        {
+            var user = await _currUserService.GetUser();
+            if (user == null)
+                return Forbid();
+
+            var confectioner = user.Confectioner;
+            if (confectioner == null)
+                return NotFound();
+
+            return Ok(
+                new ConfectionerBalanceResponse(
+                    confectioner.BalanceAvailable,
+                    confectioner.BalanceFreezed
+                )
+            );
+        }
+
         protected override Confectioner CreateModel(CreateConfectionerRequest dto)
         {
             return new Confectioner
