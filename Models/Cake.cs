@@ -42,6 +42,9 @@ namespace Caker.Models
         [JsonPropertyName("image_path")]
         public string ImagePath { get; set; } = string.Empty;
 
+        [JsonPropertyName("image_scale")]
+        public double ImageScale { get; set; } = 1.0;
+
         [JsonIgnore]
         public virtual ICollection<Order>? Orders { get; set; }
 
@@ -80,7 +83,8 @@ namespace Caker.Models
                 TextSize,
                 TextX,
                 TextY,
-                IsCustom
+                IsCustom,
+                ImageScale
             );
     }
 }
