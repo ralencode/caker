@@ -23,7 +23,8 @@ namespace Caker.Dto
         [property: JsonPropertyName("text_size")] double TextSize,
         [property: JsonPropertyName("text_x")] double TextX,
         [property: JsonPropertyName("text_y")] double TextY,
-        [property: JsonPropertyName("price")] int? Price
+        [property: JsonPropertyName("price")] int? Price,
+        [property: JsonPropertyName("image_scale")] double ImageScale
     ) : ImageUpload;
 
     public record UpdateCustomCakeRequest(
@@ -38,7 +39,8 @@ namespace Caker.Dto
         [property: JsonPropertyName("text_size")] double? TextSize,
         [property: JsonPropertyName("text_x")] double? TextX,
         [property: JsonPropertyName("text_y")] double? TextY,
-        [property: JsonPropertyName("price")] int? Price
+        [property: JsonPropertyName("price")] int? Price,
+        [property: JsonPropertyName("image_scale")] double? ImageScale
     ) : ImageUpload;
 
     public record CakeResponse(
@@ -57,6 +59,7 @@ namespace Caker.Dto
         [property: JsonPropertyName("text_size")] double? TextSize,
         [property: JsonPropertyName("text_x")] double? TextX,
         [property: JsonPropertyName("text_y")] double? TextY,
-        [property: JsonPropertyName("is_custom")] bool IsCustom
+        [property: JsonPropertyName("is_custom")] bool IsCustom,
+        [property: JsonPropertyName("image_scale")] double? ImageScale
     );
 }
