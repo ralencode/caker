@@ -151,6 +151,35 @@ namespace Caker.Controllers
             );
         }
 
+        [HttpPost("self/withdraw")]
+        public async Task<ActionResult<ConfectionerBalanceResponse>> Withdraw(
+            [FromBody] WithdrawRequest request
+        )
+        {
+            var user = await _currUserService.GetUser();
+            if (user == null || user.Confectioner == null)
+                return Forbid();
+
+            var confectioner = user.Confectioner;
+
+            if (request.Amount <= 0)
+                return BadRequest("Amount must be positive.");
+
+            if (confectioner.BalanceAvailable < request.Amount)
+                return BadRequest("Insufficient available balance.");
+
+            confectioner.BalanceAvailable -= request.Amount;
+
+            await _repo.Update(confectioner);
+
+            return Ok(
+                new ConfectionerBalanceResponse(
+                    confectioner.BalanceAvailable,
+                    confectioner.BalanceFreezed
+                )
+            );
+        }
+
         protected override Confectioner CreateModel(CreateConfectionerRequest dto)
         {
             return new Confectioner

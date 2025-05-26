@@ -8,13 +8,18 @@ namespace Caker.Controllers
 {
     [ApiController]
     [Route("api/orders")]
-    public class OrderController(OrderRepository repository, ICurrentUserService currentUserService)
+    public class OrderController(
+        OrderRepository repository,
+        ConfectionerRepository confectionerRepository,
+        ICurrentUserService currentUserService
+    )
         : BaseController<Order, OrderResponse, CreateOrderFullRequest, UpdateOrderFullRequest>(
             repository,
             currentUserService
         )
     {
         private readonly OrderRepository _repo = repository;
+        private readonly ConfectionerRepository _confectionerRepo = confectionerRepository;
         private readonly ICurrentUserService _currUserService = currentUserService;
 
         /// <summary>
@@ -45,7 +50,6 @@ namespace Caker.Controllers
         /// Create order from customer by id
         /// </summary>
         [HttpPost("{customerId}")]
-        [Consumes("multipart/form-data")]
         public async Task<ActionResult<OrderResponse>> Create(
             [FromBody] CreateOrderRequest request,
             int customerId
@@ -136,7 +140,6 @@ namespace Caker.Controllers
         /// Create full order from customer by id
         /// </summary>
         [HttpPost("full/{customerId}")]
-        [Consumes("multipart/form-data")]
         public async Task<ActionResult<OrderResponse>> Create(
             [FromBody] CreateOrderFullRequest request,
             int customerId
@@ -251,6 +254,130 @@ namespace Caker.Controllers
             int id = (int)id_n;
 
             return await GetByCustomer(id);
+        }
+
+        [HttpPost("batchpay")]
+        public async Task<ICollection<ActionResult<OrderResponse>>> BatchPay(
+            [FromBody] BatchPaymentRequest reqeusts
+        )
+        {
+            ICollection<ActionResult<OrderResponse>> creationResults = [];
+            foreach (CreateOrderRequest orderRequest in reqeusts.Orders)
+            {
+                creationResults.Add(await Create(orderRequest));
+            }
+
+            ICollection<ActionResult<OrderResponse>> paymentResults = [];
+            PaymentRequest paymentRequest = new(
+                reqeusts.CardNumber,
+                reqeusts.ExpirationDate,
+                reqeusts.Cvc
+            );
+
+            foreach (ActionResult<OrderResponse> result in creationResults)
+            {
+                OrderResponse? response = result?.Value;
+                if (response == null)
+                {
+                    paymentResults.Add(result ?? NotFound());
+                    continue;
+                }
+                paymentResults.Add(await Pay(response.Id, paymentRequest));
+            }
+            return paymentResults;
+        }
+
+        [HttpPost("{orderId}/pay")]
+        public async Task<ActionResult<OrderResponse>> Pay(
+            int orderId,
+            [FromBody] PaymentRequest request
+        )
+        {
+            var user = await _currUserService.GetUser();
+            if (user == null)
+                return Forbid("Not logged in (curent user is null)");
+
+            var order = await _repo.GetById(orderId);
+            if (order == null)
+                return NotFound();
+
+            if (order.CustomerId != user.Customer?.Id)
+                return Forbid(
+                    "Current customer {id} does not own that order, owned by other customer {orderid}",
+                    user.Customer?.Id.ToString() ?? "",
+                    order.CustomerId.ToString()
+                );
+
+            if (order.OrderStatus != OrderStatusType.PENDING_PAYMENT)
+            {
+                return BadRequest("Order is not in a state that allows payment.");
+            }
+
+            if (order.Cake?.Price * order.Quantity != order.Price)
+            {
+                return BadRequest("The sum of cakes' prices is not equal to order's price.");
+            }
+
+            order.OrderStatus = OrderStatusType.IN_PROGRESS;
+
+            await _repo.Update(order);
+
+            var confectioner = order.Cake?.Confectioner;
+            if (confectioner == null)
+                return NotFound("Confectioner not found.");
+
+            int amount = (int)order.Price;
+            confectioner.BalanceFreezed += amount;
+
+            await _confectionerRepo.Update(confectioner);
+
+            return Ok(order.ToDto());
+        }
+
+        [HttpPost("{orderId}/receive")]
+        public async Task<ActionResult<OrderResponse>> Receive(int orderId)
+        {
+            var user = await _currUserService.GetUser();
+            if (user == null)
+                return Forbid("Not logged in (curent user is null)");
+
+            var order = await _repo.GetById(orderId);
+            if (order == null)
+                return NotFound();
+
+            if (order.CustomerId != user.Customer?.Id)
+                return Forbid(
+                    "Current customer {id} does not own that order, owned by other customer {orderid}",
+                    user.Customer?.Id.ToString() ?? "",
+                    order.CustomerId.ToString()
+                );
+
+            if (order.OrderStatus != OrderStatusType.IN_PROGRESS)
+                return BadRequest("Order is not in progress.");
+
+            order.OrderStatus = OrderStatusType.RECEIVED;
+
+            await _repo.Update(order);
+
+            var confectioner = order.Cake?.Confectioner;
+            if (confectioner == null)
+                return NotFound("Confectioner not found.");
+
+            if (order.Cake?.Price * order.Quantity != order.Price)
+            {
+                return BadRequest("The sum of cakes' prices is not equal to order's price.");
+            }
+
+            int amount = (int)order.Price;
+            if (confectioner.BalanceFreezed < amount)
+                return StatusCode(500, "Insufficient freezed balance. Contact support.");
+
+            confectioner.BalanceFreezed -= amount;
+            confectioner.BalanceAvailable += amount;
+
+            await _confectionerRepo.Update(confectioner);
+
+            return Ok(order.ToDto());
         }
 
         protected override void UpdateModel(Order model, UpdateOrderFullRequest dto)
