@@ -62,7 +62,8 @@ namespace Caker.Controllers
                     confectioner.MaxEta,
                     confectioner.Fillings ?? [],
                     confectioner.DoImages,
-                    confectioner.DoShapes
+                    confectioner.DoShapes,
+                    confectioner.DoCustom
                 )
             );
 
@@ -113,6 +114,7 @@ namespace Caker.Controllers
             confectioner.Fillings = request.Fillings;
             confectioner.DoImages = request.DoImages;
             confectioner.DoShapes = request.DoShapes;
+            confectioner.DoCustom = request.DoCustom;
 
             await _repo.Update(confectioner);
             return Ok(
@@ -124,7 +126,8 @@ namespace Caker.Controllers
                     confectioner.MaxEta,
                     confectioner.Fillings,
                     confectioner.DoImages,
-                    confectioner.DoShapes
+                    confectioner.DoShapes,
+                    confectioner.DoCustom
                 )
             );
         }
@@ -143,6 +146,7 @@ namespace Caker.Controllers
                 Fillings = dto.Fillings,
                 DoImages = dto.DoImages,
                 DoShapes = dto.DoShapes,
+                DoCustom = dto.DoCustom,
                 Rating = dto.Rating,
             };
         }
@@ -169,6 +173,8 @@ namespace Caker.Controllers
                 model.DoImages = dto.DoImages.Value;
             if (dto.DoShapes.HasValue)
                 model.DoShapes = dto.DoShapes.Value;
+            if (dto.DoCustom.HasValue)
+                model.DoShapes = dto.DoCustom.Value;
             if (dto.Rating.HasValue)
                 model.Rating = dto.Rating.Value;
         }

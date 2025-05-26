@@ -10,7 +10,8 @@ namespace Caker.Dto
         [property: JsonPropertyName("max_eta_days")] int MaxETADays,
         [property: JsonPropertyName("fillings")] ICollection<string> Fillings,
         [property: JsonPropertyName("do_images")] bool DoImages,
-        [property: JsonPropertyName("do_shapes")] bool DoShapes
+        [property: JsonPropertyName("do_shapes")] bool DoShapes,
+        [property: JsonPropertyName("do_custom")] bool DoCustom
     );
 
     public record UpdateConfectionerSettingsRequest(
@@ -20,7 +21,8 @@ namespace Caker.Dto
         [property: JsonPropertyName("max_eta_days")] int MaxETADays,
         [property: JsonPropertyName("fillings")] ICollection<string> Fillings,
         [property: JsonPropertyName("do_images")] bool DoImages,
-        [property: JsonPropertyName("do_shapes")] bool DoShapes
+        [property: JsonPropertyName("do_shapes")] bool DoShapes,
+        [property: JsonPropertyName("do_custom")] bool DoCustom
     );
 
     public record CreateConfectionerRequest(
@@ -34,7 +36,8 @@ namespace Caker.Dto
         [property: JsonPropertyName("max_eta_days")] int MaxEta,
         [property: JsonPropertyName("fillings")] ICollection<string>? Fillings,
         [property: JsonPropertyName("do_images")] bool DoImages,
-        [property: JsonPropertyName("do_shapes")] bool DoShapes
+        [property: JsonPropertyName("do_shapes")] bool DoShapes,
+        [property: JsonPropertyName("do_custom")] bool DoCustom
     );
 
     public record UpdateConfectionerRequest(
@@ -48,7 +51,8 @@ namespace Caker.Dto
         [property: JsonPropertyName("max_eta_days")] int? MaxEta,
         [property: JsonPropertyName("fillings")] ICollection<string>? Fillings,
         [property: JsonPropertyName("do_images")] bool? DoImages,
-        [property: JsonPropertyName("do_shapes")] bool? DoShapes
+        [property: JsonPropertyName("do_shapes")] bool? DoShapes,
+        [property: JsonPropertyName("do_custom")] bool? DoCustom
     );
 
     public record ConfectionerResponse(
@@ -65,6 +69,7 @@ namespace Caker.Dto
         [property: JsonPropertyName("max_eta_days")] int MaxEta,
         [property: JsonPropertyName("fillings")] ICollection<string> Fillings,
         [property: JsonPropertyName("do_images")] bool DoImages,
-        [property: JsonPropertyName("do_shapes")] bool DoShapes
+        [property: JsonPropertyName("do_shapes")] bool DoShapes,
+        [property: JsonPropertyName("do_custom")] bool DoCustom
     );
 }
