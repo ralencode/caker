@@ -37,6 +37,9 @@ namespace Caker.Models
         [JsonPropertyName("do_shapes")]
         public bool DoShapes { get; set; }
 
+        [JsonPropertyName("do_custom")]
+        public bool DoCustom { get; set; }
+
         [JsonIgnore]
         public virtual ICollection<Cake>? Cakes { get; set; }
 
@@ -57,7 +60,8 @@ namespace Caker.Models
                 MaxEta,
                 Fillings ?? [],
                 DoImages,
-                DoShapes
+                DoShapes,
+                DoCustom
             );
     }
 }
