@@ -12,7 +12,9 @@ namespace Caker.Attributes.FileAttributes
             if (value is null)
                 return ValidationResult.Success;
             if (value is IFormFile file && file.Length > _maxFileSize)
-                return new ValidationResult($"Maximum file size is {_maxFileSize / 1024 / 1024}MB, current file size is {file.Length / 1024 /1024}MB.");
+                return new ValidationResult(
+                    $"Maximum file size is {_maxFileSize / 1024 / 1024}MB, current file size is {file.Length / 1024 / 1024}MB."
+                );
 
             return ValidationResult.Success;
         }
