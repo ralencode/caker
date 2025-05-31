@@ -17,6 +17,16 @@ namespace Caker.Repositories
             _dbSet = _context.Set<T>();
         }
 
+        protected virtual IQueryable<T> ApplyIncludes(IQueryable<T> query)
+        {
+            return GetIncludes()(query);
+        }
+
+        protected virtual Func<IQueryable<T>, IQueryable<T>> GetIncludes()
+        {
+            return query => query;
+        }
+
         protected virtual IQueryable<T> GetQuery(params Expression<Func<T, object?>>[] includes)
         {
             var query = _dbSet.AsNoTracking();
@@ -27,14 +37,9 @@ namespace Caker.Repositories
             return query;
         }
 
-        protected virtual Expression<Func<T, object?>>[] GetIncludes()
-        {
-            return [];
-        }
-
         public virtual async Task<IEnumerable<T>> GetAll()
         {
-            return await GetQuery(GetIncludes() ?? []).ToListAsync().ConfigureAwait(false);
+            return await ApplyIncludes(_dbSet.AsNoTracking()).ToListAsync();
         }
 
         public virtual async Task<T?> GetById(int? id)
@@ -44,21 +49,19 @@ namespace Caker.Repositories
 
         protected virtual async Task<T?> GetBy(Expression<Func<T, bool>> predicate)
         {
-            return await GetQuery(GetIncludes() ?? [])
-                .FirstOrDefaultAsync(predicate)
-                .ConfigureAwait(false);
+            return await ApplyIncludes(_dbSet.AsNoTracking()).FirstOrDefaultAsync(predicate);
         }
 
         protected virtual async Task<IEnumerable<T>> GetWhere(
             params Expression<Func<T, bool>>[] predicates
         )
         {
-            var query = GetQuery(GetIncludes() ?? []);
+            var query = ApplyIncludes(_dbSet.AsNoTracking());
             foreach (var predicate in predicates)
             {
                 query = query.Where(predicate);
             }
-            return await query.Distinct().ToListAsync().ConfigureAwait(false);
+            return await query.Distinct().ToListAsync();
         }
 
         public async Task Create(T entity)

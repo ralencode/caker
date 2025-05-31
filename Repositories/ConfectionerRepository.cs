@@ -1,15 +1,15 @@
-using System.Linq.Expressions;
 using Caker.Data;
 using Caker.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Caker.Repositories
 {
     public class ConfectionerRepository(CakerDbContext context)
         : BaseRepository<Confectioner>(context)
     {
-        protected override Expression<Func<Confectioner, object?>>[] GetIncludes()
+        protected override Func<IQueryable<Confectioner>, IQueryable<Confectioner>> GetIncludes()
         {
-            return [c => c.User, c => c.Cakes];
+            return query => query.Include(c => c.User).Include(c => c.Cakes);
         }
     }
 }
