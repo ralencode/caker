@@ -1,15 +1,15 @@
-using System.Linq.Expressions;
 using Caker.Data;
 using Caker.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Caker.Repositories
 {
     public class RefreshTokenRepository(CakerDbContext context)
         : BaseRepository<RefreshToken>(context)
     {
-        protected override Expression<Func<RefreshToken, object?>>[] GetIncludes()
+        protected override Func<IQueryable<RefreshToken>, IQueryable<RefreshToken>> GetIncludes()
         {
-            return [rt => rt.User!];
+            return query => query.Include(rt => rt.User);
         }
 
         public async Task<RefreshToken?> GetByToken(string token)
