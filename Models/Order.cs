@@ -55,7 +55,7 @@ namespace Caker.Models
         [JsonPropertyName("is_custom")]
         public bool IsCustom { get; set; }
 
-        public ICollection<int> AllowedUserIds => Cake?.AllowedUserIds ?? [];
+        public ICollection<int> AllowedUserIds => [Cake?.Confectioner?.UserId] ?? [];
 
         public OrderResponse ToDto() =>
             new(
