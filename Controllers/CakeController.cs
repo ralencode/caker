@@ -95,12 +95,12 @@ namespace Caker.Controllers
             var cake = new Cake
             {
                 ConfectionerId = id,
-                Name = request.Name,
-                Description = request.Description,
-                Diameter = request.Diameter,
-                Weight = request.Weight,
-                ReqTime = request.ReqTime,
-                Price = request.Price,
+                Name = request.name,
+                Description = request.description,
+                Diameter = request.diameter,
+                Weight = request.weight,
+                ReqTime = request.required_time,
+                Price = request.price,
                 ImagePath = imagePath,
                 IsCustom = false,
                 Visible = true,
@@ -125,26 +125,26 @@ namespace Caker.Controllers
             var imagePath =
                 (request.Image is null)
                     ? ""
-                    : await _imageService.SaveImageAsync(request.Image, request.ConfectionerId);
+                    : await _imageService.SaveImageAsync(request.Image, request.confectioner_id);
 
             var cake = new Cake
             {
-                ConfectionerId = request.ConfectionerId,
-                Diameter = request.Diameter,
-                ReqTime = request.ReqTime,
-                Color = request.Color,
-                Text = request.Text,
+                ConfectionerId = request.confectioner_id,
+                Diameter = request.diameter,
+                ReqTime = request.required_time,
+                Color = request.color,
+                Text = request.text,
                 ImagePath = imagePath,
                 IsCustom = true,
-                TextX = request.TextX,
-                TextY = request.TextY,
-                TextSize = request.TextSize,
-                Fillings = request.Fillings,
+                TextX = request.text_x,
+                TextY = request.text_y,
+                TextSize = request.text_size,
+                Fillings = request.fillings,
                 Visible = false,
-                Name = request.Name ?? "Custom cake",
-                Description = request.Description,
-                Price = request.Price ?? 0,
-                ImageScale = request.ImageScale,
+                Name = request.name ?? "Custom cake",
+                Description = request.description,
+                Price = request.price ?? 0,
+                ImageScale = request.image_scale,
             };
 
             await _repo.Create(cake);
@@ -195,47 +195,47 @@ namespace Caker.Controllers
         protected override Cake CreateModel(CreateCustomCakeRequest dto) =>
             new()
             {
-                Name = dto.Name ?? "Custom cake",
-                ConfectionerId = dto.ConfectionerId,
-                Visible = dto.Name is not null,
-                Description = dto.Description,
-                Price = dto.Price ?? 0,
-                Color = dto.Color,
-                Diameter = dto.Diameter,
-                Fillings = dto.Fillings,
-                Text = dto.Text,
-                TextSize = dto.TextSize,
-                TextX = dto.TextX,
-                TextY = dto.TextY,
-                ImageScale = dto.ImageScale,
+                Name = dto.name ?? "Custom cake",
+                ConfectionerId = dto.confectioner_id,
+                Visible = dto.name is not null,
+                Description = dto.description,
+                Price = dto.price ?? 0,
+                Color = dto.color,
+                Diameter = dto.diameter,
+                Fillings = dto.fillings,
+                Text = dto.text,
+                TextSize = dto.text_size,
+                TextX = dto.text_x,
+                TextY = dto.text_y,
+                ImageScale = dto.image_scale,
             };
 
         protected override void UpdateModel(Cake model, UpdateCustomCakeRequest dto)
         {
-            if (dto.Name is not null)
-                model.Name = dto.Name;
-            if (dto.ConfectionerId.HasValue)
-                model.ConfectionerId = dto.ConfectionerId.Value;
-            if (dto.Description is not null)
-                model.Description = dto.Description;
-            if (dto.Price.HasValue)
-                model.Price = dto.Price.Value;
-            if (dto.Color is not null)
-                model.Color = dto.Color;
-            if (dto.Diameter.HasValue)
-                model.Diameter = dto.Diameter.Value;
-            if (dto.Fillings is not null)
-                model.Fillings = dto.Fillings;
-            if (dto.Text is not null)
-                model.Text = dto.Text;
-            if (dto.TextSize.HasValue)
-                model.TextSize = dto.TextSize.Value;
-            if (dto.TextX.HasValue)
-                model.TextX = dto.TextX.Value;
-            if (dto.TextY.HasValue)
-                model.TextY = dto.TextY.Value;
-            if (dto.ImageScale.HasValue)
-                model.TextY = dto.ImageScale.Value;
+            if (dto.name is not null)
+                model.Name = dto.name;
+            if (dto.confectioner_id.HasValue)
+                model.ConfectionerId = dto.confectioner_id.Value;
+            if (dto.description is not null)
+                model.Description = dto.description;
+            if (dto.price.HasValue)
+                model.Price = dto.price.Value;
+            if (dto.color is not null)
+                model.Color = dto.color;
+            if (dto.diameter.HasValue)
+                model.Diameter = dto.diameter.Value;
+            if (dto.fillings is not null)
+                model.Fillings = dto.fillings;
+            if (dto.text is not null)
+                model.Text = dto.text;
+            if (dto.text_size.HasValue)
+                model.TextSize = dto.text_size.Value;
+            if (dto.text_x.HasValue)
+                model.TextX = dto.text_x.Value;
+            if (dto.text_y.HasValue)
+                model.TextY = dto.text_y.Value;
+            if (dto.image_scale.HasValue)
+                model.TextY = dto.image_scale.Value;
         }
     }
 }
