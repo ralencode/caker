@@ -60,4 +60,11 @@ namespace Caker.Dto
         [property: JsonPropertyName("expiration_date")] string ExpirationDate,
         [property: JsonPropertyName("cvc")] string Cvc
     );
+
+    public record BatchPaymentResponse(
+        [property: JsonPropertyName("order_id")] int? OrderId,
+        [property: JsonPropertyName("order")] OrderResponse? Order,
+        [property: JsonPropertyName("status")] OrderStatusType? Status,
+        [property: JsonPropertyName("error")] string? Error
+    );
 }
