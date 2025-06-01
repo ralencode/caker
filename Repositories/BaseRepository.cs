@@ -52,6 +52,23 @@ namespace Caker.Repositories
             return await ApplyIncludes(_dbSet.AsNoTracking()).FirstOrDefaultAsync(predicate);
         }
 
+        public virtual async Task<T?> GetById(int? id, bool tracking = false)
+        {
+            return await GetBy(e => e.Id == id, tracking);
+        }
+
+        protected virtual async Task<T?> GetBy(
+            Expression<Func<T, bool>> predicate,
+            bool tracking = false
+        )
+        {
+            var query = ApplyIncludes(_dbSet);
+            if (!tracking)
+                query = query.AsNoTracking();
+
+            return await query.FirstOrDefaultAsync(predicate);
+        }
+
         protected virtual async Task<IEnumerable<T>> GetWhere(
             params Expression<Func<T, bool>>[] predicates
         )
@@ -72,7 +89,19 @@ namespace Caker.Repositories
 
         public async Task Update(T entity)
         {
-            _dbSet.Update(entity);
+            var existing = _context
+                .ChangeTracker.Entries<T>()
+                .FirstOrDefault(e => e.Entity.Id == entity.Id)
+                ?.Entity;
+
+            if (existing != null)
+            {
+                _context.Entry(existing).CurrentValues.SetValues(entity);
+            }
+            else
+            {
+                _dbSet.Update(entity);
+            }
             await _context.SaveChangesAsync();
         }
 

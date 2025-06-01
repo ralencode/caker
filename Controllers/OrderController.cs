@@ -11,6 +11,7 @@ namespace Caker.Controllers
     public class OrderController(
         OrderRepository repository,
         ConfectionerRepository confectionerRepository,
+        CakeRepository cakeRepository,
         ICurrentUserService currentUserService
     )
         : BaseController<Order, OrderResponse, CreateOrderFullRequest, UpdateOrderFullRequest>(
@@ -20,6 +21,7 @@ namespace Caker.Controllers
     {
         private readonly OrderRepository _repo = repository;
         private readonly ConfectionerRepository _confectionerRepo = confectionerRepository;
+        private readonly CakeRepository _cakeRepo = cakeRepository;
         private readonly ICurrentUserService _currUserService = currentUserService;
 
         /// <summary>
@@ -81,13 +83,19 @@ namespace Caker.Controllers
             int id
         )
         {
+            var cake = await _cakeRepo.GetById(request.CakeId, tracking: true);
+            if (cake == null)
+                return NotFound("Cake not found");
+
             var order = new Order
             {
                 CustomerId = id,
                 CakeId = request.CakeId,
                 Price = request.Price,
                 Quantity = request.Quantity,
-                OrderStatus = OrderStatusType.PENDING_APPROVAL,
+                OrderStatus = cake.IsCustom
+                    ? OrderStatusType.PENDING_APPROVAL
+                    : OrderStatusType.PENDING_PAYMENT,
                 CreationDate = DateTime.UtcNow,
             };
 
@@ -97,7 +105,7 @@ namespace Caker.Controllers
             await _repo.Create(order);
 
             // Fetch the order with included Cake and Confectioner
-            var createdOrder = await _repo.GetById(order.Id);
+            var createdOrder = await _repo.GetById(order.Id, tracking: true);
             if (createdOrder == null)
             {
                 return NotFound();
@@ -257,34 +265,61 @@ namespace Caker.Controllers
         }
 
         [HttpPost("batchpay")]
-        public async Task<ICollection<ActionResult<OrderResponse>>> BatchPay(
-            [FromBody] BatchPaymentRequest reqeusts
+        public async Task<ActionResult<ICollection<BatchPaymentResponse>>> BatchPay(
+            [FromBody] BatchPaymentRequest requests
         )
         {
-            ICollection<ActionResult<OrderResponse>> creationResults = [];
-            foreach (CreateOrderRequest orderRequest in reqeusts.Orders)
-            {
-                creationResults.Add(await Create(orderRequest));
-            }
-
-            ICollection<ActionResult<OrderResponse>> paymentResults = [];
+            var results = new List<BatchPaymentResponse>();
             PaymentRequest paymentRequest = new(
-                reqeusts.CardNumber,
-                reqeusts.ExpirationDate,
-                reqeusts.Cvc
+                requests.CardNumber,
+                requests.ExpirationDate,
+                requests.Cvc
             );
 
-            foreach (ActionResult<OrderResponse> result in creationResults)
+            foreach (CreateOrderRequest orderRequest in requests.Orders)
             {
-                OrderResponse? response = result?.Value;
-                if (response == null)
+                var resultId = -1;
+                OrderResponse? resultOrder = null;
+                OrderStatusType? resultStatus = null;
+                var resultError = "";
+
+                var creationResult = await Create(orderRequest);
+
+                if (creationResult.Result is CreatedAtActionResult created)
                 {
-                    paymentResults.Add(result ?? NotFound());
-                    continue;
+                    if (
+                        created.RouteValues?.TryGetValue("id", out var idObj) == true
+                        && idObj is int orderId
+                    )
+                    {
+                        resultId = orderId;
+                        var payResult = await Pay(orderId, paymentRequest);
+
+                        if (payResult.Result is OkObjectResult okResult)
+                        {
+                            if (okResult.Value is OrderResponse response)
+                            {
+                                resultOrder = response;
+                                resultStatus = response.Status;
+                            }
+                        }
+                        else if (payResult.Result is ObjectResult problem)
+                        {
+                            resultError = problem.Value?.ToString();
+                        }
+                    }
                 }
-                paymentResults.Add(await Pay(response.Id, paymentRequest));
+                else if (creationResult.Result is ObjectResult errorResult)
+                {
+                    resultError = errorResult.Value?.ToString();
+                }
+
+                results.Add(
+                    new BatchPaymentResponse(resultId, resultOrder, resultStatus, resultError)
+                );
             }
-            return paymentResults;
+
+            return Ok(results);
         }
 
         [HttpPost("{orderId}/pay")]
@@ -297,7 +332,7 @@ namespace Caker.Controllers
             if (user == null)
                 return Forbid("Not logged in (curent user is null)");
 
-            var order = await _repo.GetById(orderId);
+            var order = await _repo.GetById(orderId, tracking: true);
             if (order == null)
                 return NotFound();
 
