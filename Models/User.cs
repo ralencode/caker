@@ -22,6 +22,7 @@ namespace Caker.Models
 
         public required string Email { get; set; }
 
+        [JsonIgnore]
         public required string Password { get; set; }
 
         [JsonPropertyName("phone_number")]
