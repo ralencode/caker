@@ -27,13 +27,17 @@ namespace Caker.Controllers
 
         [Authorize]
         [HttpGet("current")]
-        public async Task<ActionResult<IEnumerable<CakeResponse>>> GetCurrent()
+        public async Task<ActionResult<IEnumerable<UserResponse>>> GetCurrent()
         {
             try
             {
                 var userId = _currUserService.GetUserId();
                 var result = await _repo.GetById(userId);
-                return Ok(result);
+                if (result == null)
+                {
+                    return NotFound();
+                }
+                return Ok(result.ToDto());
             }
             catch
             {
