@@ -55,7 +55,22 @@ namespace Caker.Models
         [JsonPropertyName("is_custom")]
         public bool IsCustom { get; set; }
 
-        public ICollection<int> AllowedUserIds => [Cake?.Confectioner?.UserId] ?? [];
+        public ICollection<int> AllowedUserIds
+        {
+            get
+            {
+                List<int> result = [];
+                if (IsCustom && Customer is not null)
+                {
+                    result.Add(Customer.UserId);
+                }
+                if (Cake is not null && Cake.Confectioner is not null)
+                {
+                    result.Add(Cake.Confectioner.UserId);
+                }
+                return result;
+            }
+        }
 
         public OrderResponse ToDto() =>
             new(
