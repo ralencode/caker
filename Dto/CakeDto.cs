@@ -4,25 +4,25 @@ namespace Caker.Dto
 {
     public record CreateRegularCakeRequest(
         [property: JsonPropertyName("name")] string name,
-        [property: JsonPropertyName("description")] string description,
-        [property: JsonPropertyName("diameter")] double diameter,
-        [property: JsonPropertyName("weight")] double weight,
-        [property: JsonPropertyName("required_time")] int required_time,
+        [property: JsonPropertyName("description")] string? description,
+        [property: JsonPropertyName("diameter")] double? diameter,
+        [property: JsonPropertyName("weight")] double? weight,
+        [property: JsonPropertyName("required_time")] int? required_time,
         [property: JsonPropertyName("price")] int price
     ) : ImageUpload;
 
     public record CreateCustomCakeRequest(
         [property: JsonPropertyName("confectioner_id")] int confectioner_id,
         [property: JsonPropertyName("name")] string? name,
-        [property: JsonPropertyName("description")] string description,
+        [property: JsonPropertyName("description")] string? description,
         [property: JsonPropertyName("fillings")] ICollection<string> fillings,
-        [property: JsonPropertyName("required_time")] int required_time,
-        [property: JsonPropertyName("color")] string color,
-        [property: JsonPropertyName("diameter")] double diameter,
-        [property: JsonPropertyName("text")] string text,
-        [property: JsonPropertyName("text_size")] double text_size,
-        [property: JsonPropertyName("text_x")] double text_x,
-        [property: JsonPropertyName("text_y")] double text_y,
+        [property: JsonPropertyName("required_time")] int? required_time,
+        [property: JsonPropertyName("color")] string? color,
+        [property: JsonPropertyName("diameter")] double? diameter,
+        [property: JsonPropertyName("text")] string? text,
+        [property: JsonPropertyName("text_size")] double? text_size,
+        [property: JsonPropertyName("text_x")] double? text_x,
+        [property: JsonPropertyName("text_y")] double? text_y,
         [property: JsonPropertyName("price")] int? price,
         [property: JsonPropertyName("image_scale")] double image_scale
     ) : ImageUpload;
@@ -47,7 +47,7 @@ namespace Caker.Dto
         [property: JsonPropertyName("id")] int Id,
         [property: JsonPropertyName("confectioner")] ConfectionerResponse? Confectioner,
         [property: JsonPropertyName("name")] string? Name,
-        [property: JsonPropertyName("description")] string Description,
+        [property: JsonPropertyName("description")] string? Description,
         [property: JsonPropertyName("fillings")] ICollection<string>? Fillings,
         [property: JsonPropertyName("required_time")] int? ReqTime,
         [property: JsonPropertyName("color")] string? Color,

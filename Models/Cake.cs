@@ -14,7 +14,7 @@ namespace Caker.Models
         public virtual Confectioner? Confectioner { get; set; }
         public required bool Visible { get; set; } = true;
         public required string Name { get; set; }
-        public required string Description { get; set; } = "";
+        public string? Description { get; set; } = "";
         public string Image { get; set; } = "";
         public required int Price { get; set; } = 0;
         public double? Weight { get; set; }
@@ -31,13 +31,13 @@ namespace Caker.Models
         public ICollection<string> Fillings { get; set; } = [];
 
         [JsonPropertyName("text_size")]
-        public double TextSize { get; set; }
+        public double? TextSize { get; set; }
 
         [JsonPropertyName("text_y")]
-        public double TextY { get; set; }
+        public double? TextY { get; set; }
 
         [JsonPropertyName("text_x")]
-        public double TextX { get; set; }
+        public double? TextX { get; set; }
 
         [JsonPropertyName("image_path")]
         public string ImagePath { get; set; } = string.Empty;
