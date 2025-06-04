@@ -210,6 +210,15 @@ namespace Caker.Controllers
             return Ok(cakes.Select(c => c.ToDto()));
         }
 
+        [HttpPost("search/name")]
+        public async Task<ActionResult<IEnumerable<ConfectionerResponse>>> GetByName(
+            [FromBody] SearchQuery query
+        )
+        {
+            var confectioners = await _repo.SearchByName(query.Name);
+            return Ok(confectioners.Select(c => c.ToDto()));
+        }
+
         [HttpPatch("{id}/image")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<CakeResponse>> UpdateImage(int id, IFormFile Image)

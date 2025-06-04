@@ -31,6 +31,15 @@ namespace Caker.Controllers
             return Ok(confectioners.Select(c => c.ToDto()));
         }
 
+        [HttpPost("search/name")]
+        public async Task<ActionResult<IEnumerable<ConfectionerResponse>>> GetByName(
+            [FromBody] SearchQuery query
+        )
+        {
+            var confectioners = await _repo.SearchByName(query.Name);
+            return Ok(confectioners.Select(c => c.ToDto()));
+        }
+
         /// <summary>
         /// Get settings by id.
         /// </summary>

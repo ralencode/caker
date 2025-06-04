@@ -27,6 +27,15 @@ namespace Caker.Repositories
             return await GetWhereOrdered(c => c.IsCustom == false, c => c.Price, ascending);
         }
 
+        public async Task<IEnumerable<Cake>> SearchByName(string name)
+        {
+            return await GetWhereOrdered(
+                c => c.Name.Contains(name) && !c.IsCustom,
+                c => c.Price,
+                false
+            );
+        }
+
         public async Task<IEnumerable<Cake>?> GetByConfectioner(int confectionerId)
         {
             return await GetWhere(c => c.ConfectionerId == confectionerId);
