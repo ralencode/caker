@@ -11,5 +11,14 @@ namespace Caker.Repositories
         {
             return query => query.Include(c => c.User).Include(c => c.Cakes);
         }
+
+        public async Task<IEnumerable<Confectioner>> GetSortedByCakesCount(bool ascending)
+        {
+            return await GetWhereOrdered(
+                c => c.Cakes.Where(c => !c.IsCustom).Any() || c.DoCustom,
+                c => c.Cakes.Where(c => !c.IsCustom).Count(),
+                ascending
+            );
+        }
     }
 }
