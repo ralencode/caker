@@ -192,6 +192,22 @@ namespace Caker.Controllers
             return await GetByConfectioner(id);
         }
 
+        [HttpPatch("{id}/image")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<CakeResponse>> UpdateImage(int id, IFormFile Image)
+        {
+            var cake = await _repo.GetById(id);
+            if (cake == null)
+                return NotFound();
+
+            if (!CanUpdate(cake))
+                return Forbid();
+
+            cake.ImagePath = await _imageService.SaveImageAsync(Image, cake.ConfectionerId);
+            await _repo.Update(cake);
+            return Ok(cake.ToDto());
+        }
+
         protected override Cake CreateModel(CreateCustomCakeRequest dto) =>
             new()
             {
