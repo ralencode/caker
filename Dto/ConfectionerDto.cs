@@ -19,7 +19,7 @@ namespace Caker.Dto
         [property: JsonPropertyName("max_diameter")] double MaxDiameter,
         [property: JsonPropertyName("min_eta_days")] int MinETADays,
         [property: JsonPropertyName("max_eta_days")] int MaxETADays,
-        [property: JsonPropertyName("fillings")] ICollection<string> Fillings,
+        [property: JsonPropertyName("fillings")] ICollection<string>? Fillings,
         [property: JsonPropertyName("do_images")] bool DoImages,
         [property: JsonPropertyName("do_shapes")] bool DoShapes,
         [property: JsonPropertyName("do_custom")] bool DoCustom
