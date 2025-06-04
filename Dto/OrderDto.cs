@@ -65,4 +65,6 @@ namespace Caker.Dto
         [property: JsonPropertyName("status")] OrderStatusType? Status,
         [property: JsonPropertyName("error")] string? Error
     );
+
+    public record ChangeStatusRequest([property: JsonPropertyName("status")] string Status);
 }
