@@ -27,6 +27,31 @@ namespace Caker.Repositories
             return await GetWhereOrdered(c => c.IsCustom == false, c => c.Price, ascending);
         }
 
+        public async Task<IEnumerable<Cake>> SearchSortedNonCustomByWeight(
+            bool ascending,
+            string name
+        )
+        {
+            return await GetWhereOrdered(
+                c => c.Name.Contains(name) && !c.IsCustom,
+                c => c.Weight,
+                ascending,
+                true
+            );
+        }
+
+        public async Task<IEnumerable<Cake>> SearchSortedNonCustomByPrice(
+            bool ascending,
+            string name
+        )
+        {
+            return await GetWhereOrdered(
+                c => c.Name.Contains(name) && !c.IsCustom,
+                c => c.Price,
+                ascending
+            );
+        }
+
         public async Task<IEnumerable<Cake>> SearchByName(string name)
         {
             return await GetWhereOrdered(

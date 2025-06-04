@@ -210,6 +210,26 @@ namespace Caker.Controllers
             return Ok(cakes.Select(c => c.ToDto()));
         }
 
+        [HttpPost("sorted/weight")]
+        public async Task<ActionResult<IEnumerable<CakeResponse>>> SearchSortedByWeight(
+            [FromBody] SearchQuery query,
+            [FromQuery] bool ascending = true
+        )
+        {
+            var cakes = await _repo.SearchSortedNonCustomByWeight(ascending, query.Name);
+            return Ok(cakes.Select(c => c.ToDto()));
+        }
+
+        [HttpPost("sorted/price")]
+        public async Task<ActionResult<IEnumerable<CakeResponse>>> SearchSortedByPrice(
+            [FromBody] SearchQuery query,
+            [FromQuery] bool ascending = true
+        )
+        {
+            var cakes = await _repo.SearchSortedNonCustomByPrice(ascending, query.Name);
+            return Ok(cakes.Select(c => c.ToDto()));
+        }
+
         [HttpPost("search/name")]
         public async Task<ActionResult<IEnumerable<CakeResponse>>> GetByName(
             [FromBody] SearchQuery query

@@ -21,6 +21,20 @@ namespace Caker.Repositories
             );
         }
 
+        public async Task<IEnumerable<Confectioner>> SearchSortedByCakesCount(
+            bool ascending,
+            string name
+        )
+        {
+            return await GetWhereOrdered(
+                c =>
+                    c.User!.Name.Contains(name)
+                    && (c.Cakes.Where(c => !c.IsCustom).Any() || c.DoCustom),
+                c => c.Cakes.Where(c => !c.IsCustom).Count(),
+                ascending
+            );
+        }
+
         public async Task<IEnumerable<Confectioner>> SearchByName(string name)
         {
             return await GetWhereOrdered(

@@ -31,6 +31,16 @@ namespace Caker.Controllers
             return Ok(confectioners.Select(c => c.ToDto()));
         }
 
+        [HttpPost("sorted/cakes")]
+        public async Task<ActionResult<IEnumerable<ConfectionerResponse>>> SearchSortedByCakesCount(
+            [FromBody] SearchQuery query,
+            [FromQuery] bool ascending = true
+        )
+        {
+            var confectioners = await _repo.SearchSortedByCakesCount(ascending, query.Name);
+            return Ok(confectioners.Select(c => c.ToDto()));
+        }
+
         [HttpPost("search/name")]
         public async Task<ActionResult<IEnumerable<ConfectionerResponse>>> GetByName(
             [FromBody] SearchQuery query
