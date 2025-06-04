@@ -224,6 +224,7 @@ namespace Caker.Controllers
                 TextX = dto.text_x,
                 TextY = dto.text_y,
                 ImageScale = dto.image_scale,
+                IsCustom = true,
             };
 
         protected override void UpdateModel(Cake model, UpdateCustomCakeRequest dto)

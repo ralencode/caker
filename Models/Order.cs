@@ -52,18 +52,12 @@ namespace Caker.Models
 
         public int Quantity { get; set; }
 
-        [JsonPropertyName("is_custom")]
-        public bool IsCustom
-        {
-            get { return Cake!.IsCustom; }
-        }
-
         public ICollection<int> AllowedUserIds
         {
             get
             {
                 List<int> result = [];
-                if (IsCustom && Customer is not null)
+                if (Cake!.IsCustom && Customer is not null)
                 {
                     result.Add(Customer.UserId);
                 }
@@ -85,7 +79,7 @@ namespace Caker.Models
                 OrderStatus,
                 Quantity,
                 CreationDate,
-                IsCustom
+                Cake!.IsCustom
             );
     }
 }

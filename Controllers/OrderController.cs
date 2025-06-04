@@ -186,7 +186,6 @@ namespace Caker.Controllers
                 Price = dto.Price,
                 Quantity = dto.Quantity,
                 OrderStatus = dto.OrderStatus,
-                IsCustom = dto.IsCustom,
                 CreationDate = DateTime.UtcNow,
             };
 
@@ -427,8 +426,6 @@ namespace Caker.Controllers
                 model.Quantity = dto.Quantity.Value;
             if (dto.OrderStatus.HasValue)
                 model.OrderStatus = dto.OrderStatus.Value;
-            if (dto.IsCustom.HasValue)
-                model.IsCustom = dto.IsCustom.Value;
             if (dto.CreatedAt.HasValue)
                 model.CreationDate = dto.CreatedAt.Value;
         }
@@ -442,7 +439,6 @@ namespace Caker.Controllers
                 Quantity = dto.Quantity,
                 OrderStatus = dto.OrderStatus,
                 CreationDate = dto.CreatedAt,
-                IsCustom = dto.IsCustom,
             };
     }
 }
