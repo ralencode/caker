@@ -357,7 +357,12 @@ namespace Caker.Controllers
                 return BadRequest("Order is not in a state that allows payment.");
             }
 
-            if (order.Cake?.Price * order.Quantity != order.Price)
+            if (order.Cake?.IsCustom ?? false)
+            {
+                order.Cake.Price = (int)(order.Price / order.Quantity);
+                await _cakeRepo.Update(order.Cake);
+            }
+            else if (order.Cake?.Price * order.Quantity != order.Price)
             {
                 return BadRequest("The sum of cakes' prices is not equal to order's price.");
             }
