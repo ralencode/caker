@@ -25,7 +25,7 @@ namespace Caker.Models
         [JsonIgnore]
         public required string Password { get; set; }
 
-        [JsonPropertyName("phone_number")]
+        [JsonPropertyName("phone")]
         public required string PhoneNumber { get; set; }
 
         public string? Address { get; set; } = "";
