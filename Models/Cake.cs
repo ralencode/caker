@@ -60,16 +60,10 @@ namespace Caker.Models
                             .Where(id => id.HasValue)
                             .Select(id => id!.Value)
                             .ToList() ?? [];
-                    Console.WriteLine(
-                        inOrder.Select(id => id.ToString()).Aggregate((a, b) => a + ", " + b)
-                    );
                     result.AddRange(inOrder);
                 }
                 if (Confectioner is not null)
                     result.Add(Confectioner.UserId);
-                Console.WriteLine(
-                    result.Select(id => id.ToString()).Aggregate((a, b) => a + ", " + b)
-                );
                 return result;
             }
         }
