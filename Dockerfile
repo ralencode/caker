@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS server-build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS server-build
 WORKDIR /src
 
 COPY Caker.* ./
@@ -9,7 +9,7 @@ COPY . .
 RUN dotnet publish "Caker.csproj" -c Release -o /app/publish /p:DebugType=portable
 
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 
 COPY --from=server-build /app/publish .
