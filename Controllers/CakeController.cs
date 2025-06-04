@@ -211,12 +211,12 @@ namespace Caker.Controllers
         }
 
         [HttpPost("search/name")]
-        public async Task<ActionResult<IEnumerable<ConfectionerResponse>>> GetByName(
+        public async Task<ActionResult<IEnumerable<CakeResponse>>> GetByName(
             [FromBody] SearchQuery query
         )
         {
-            var confectioners = await _repo.SearchByName(query.Name);
-            return Ok(confectioners.Select(c => c.ToDto()));
+            var cakes = await _repo.SearchByName(query.Name);
+            return Ok(cakes.Select(c => c.ToDto()));
         }
 
         [HttpPatch("{id}/image")]
