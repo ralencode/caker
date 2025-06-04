@@ -45,7 +45,7 @@ namespace Caker.Models
         public int BalanceFreezed { get; set; }
 
         [JsonIgnore]
-        public virtual ICollection<Cake>? Cakes { get; set; }
+        public virtual ICollection<Cake> Cakes { get; set; } = [];
 
         public ICollection<int> AllowedUserIds => [UserId];
 
