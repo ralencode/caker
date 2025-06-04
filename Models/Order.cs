@@ -53,7 +53,10 @@ namespace Caker.Models
         public int Quantity { get; set; }
 
         [JsonPropertyName("is_custom")]
-        public bool IsCustom { get; set; }
+        public bool IsCustom
+        {
+            get { return Cake!.IsCustom; }
+        }
 
         public ICollection<int> AllowedUserIds
         {
