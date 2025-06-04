@@ -81,6 +81,44 @@ namespace Caker.Repositories
             return await query.Distinct().ToListAsync();
         }
 
+        public virtual async Task<IEnumerable<T>> GetWhereOrdered<TKey>(
+            Expression<Func<T, bool>> predicate,
+            Expression<Func<T, TKey>> keySelector,
+            bool ascending = true,
+            bool handleNulls = false
+        )
+        {
+            var query = ApplyIncludes(_dbSet.AsNoTracking()).Where(predicate);
+
+            if (handleNulls)
+            {
+                // Create null check expression
+                var parameter = keySelector.Parameters[0];
+                var nullCheck = Expression.Equal(
+                    keySelector.Body,
+                    Expression.Constant(null, typeof(TKey))
+                );
+                var lambda = Expression.Lambda<Func<T, bool>>(nullCheck, parameter);
+
+                if (ascending)
+                {
+                    query = query.OrderBy(lambda).ThenBy(keySelector);
+                }
+                else
+                {
+                    query = query.OrderByDescending(lambda).ThenByDescending(keySelector);
+                }
+            }
+            else
+            {
+                query = ascending
+                    ? query.OrderBy(keySelector)
+                    : query.OrderByDescending(keySelector);
+            }
+
+            return await query.ToListAsync();
+        }
+
         public async Task Create(T entity)
         {
             await _dbSet.AddAsync(entity);

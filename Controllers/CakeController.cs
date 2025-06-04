@@ -192,6 +192,24 @@ namespace Caker.Controllers
             return await GetByConfectioner(id);
         }
 
+        [HttpGet("sorted/weight")]
+        public async Task<ActionResult<IEnumerable<CakeResponse>>> GetSortedByWeight(
+            [FromQuery] bool ascending = true
+        )
+        {
+            var cakes = await _repo.GetSortedNonCustomByWeight(ascending);
+            return Ok(cakes.Select(c => c.ToDto()));
+        }
+
+        [HttpGet("sorted/price")]
+        public async Task<ActionResult<IEnumerable<CakeResponse>>> GetSortedByPrice(
+            [FromQuery] bool ascending = true
+        )
+        {
+            var cakes = await _repo.GetSortedNonCustomByPrice(ascending);
+            return Ok(cakes.Select(c => c.ToDto()));
+        }
+
         [HttpPatch("{id}/image")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<CakeResponse>> UpdateImage(int id, IFormFile Image)

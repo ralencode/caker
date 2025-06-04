@@ -17,6 +17,16 @@ namespace Caker.Repositories
                     .ThenInclude(c => c!.User);
         }
 
+        public async Task<IEnumerable<Cake>> GetSortedNonCustomByWeight(bool ascending)
+        {
+            return await GetWhereOrdered(c => c.IsCustom == false, c => c.Weight, ascending, true);
+        }
+
+        public async Task<IEnumerable<Cake>> GetSortedNonCustomByPrice(bool ascending)
+        {
+            return await GetWhereOrdered(c => c.IsCustom == false, c => c.Price, ascending);
+        }
+
         public async Task<IEnumerable<Cake>?> GetByConfectioner(int confectionerId)
         {
             return await GetWhere(c => c.ConfectionerId == confectionerId);

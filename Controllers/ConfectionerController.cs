@@ -22,6 +22,15 @@ namespace Caker.Controllers
         private readonly ConfectionerRepository _repo = repository;
         private readonly ICurrentUserService _currUserService = currentUserService;
 
+        [HttpGet("sorted/cakes")]
+        public async Task<ActionResult<IEnumerable<ConfectionerResponse>>> GetSortedByCakesCount(
+            [FromQuery] bool ascending = true
+        )
+        {
+            var confectioners = await _repo.GetSortedByCakesCount(ascending);
+            return Ok(confectioners.Select(c => c.ToDto()));
+        }
+
         /// <summary>
         /// Get settings by id.
         /// </summary>
@@ -144,7 +153,7 @@ namespace Caker.Controllers
                     confectioner.MaxDiameter,
                     confectioner.MinEta,
                     confectioner.MaxEta,
-                    confectioner.Fillings,
+                    confectioner.Fillings ?? [],
                     confectioner.DoImages,
                     confectioner.DoShapes,
                     confectioner.DoCustom
