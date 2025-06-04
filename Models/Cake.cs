@@ -77,7 +77,7 @@ namespace Caker.Models
                 Fillings,
                 ReqTime,
                 Color,
-                $"assets/{ImagePath}",
+                ImagePath,
                 Price,
                 Diameter,
                 Weight,

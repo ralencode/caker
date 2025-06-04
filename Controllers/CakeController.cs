@@ -134,7 +134,8 @@ namespace Caker.Controllers
                 ReqTime = request.required_time,
                 Color = request.color,
                 Text = request.text,
-                ImagePath = imagePath,
+                ImagePath =
+                    imagePath.Length > "assets/".Length ? imagePath : request.image_path ?? "",
                 IsCustom = true,
                 TextX = request.text_x,
                 TextY = request.text_y,
@@ -272,6 +273,7 @@ namespace Caker.Controllers
                 TextY = dto.text_y,
                 ImageScale = dto.image_scale,
                 IsCustom = true,
+                ImagePath = dto.image_path ?? "",
             };
 
         protected override void UpdateModel(Cake model, UpdateCustomCakeRequest dto)
@@ -300,6 +302,8 @@ namespace Caker.Controllers
                 model.TextY = dto.text_y.Value;
             if (dto.image_scale.HasValue)
                 model.TextY = dto.image_scale.Value;
+            if (dto.image_path is not null && dto.image_path.Length > 1)
+                model.ImagePath = dto.image_path;
         }
     }
 }
