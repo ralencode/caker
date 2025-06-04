@@ -406,8 +406,8 @@ namespace Caker.Controllers
                     order.CustomerId.ToString()
                 );
 
-            if (order.OrderStatus != OrderStatusType.IN_PROGRESS)
-                return BadRequest("Order is not in progress.");
+            if (order.OrderStatus != OrderStatusType.DONE)
+                return BadRequest("Order is not done.");
 
             order.OrderStatus = OrderStatusType.RECEIVED;
 
@@ -417,7 +417,12 @@ namespace Caker.Controllers
             if (confectioner == null)
                 return NotFound("Confectioner not found.");
 
-            if (order.Cake?.Price * order.Quantity != order.Price)
+            if (order.Cake?.IsCustom ?? false)
+            {
+                order.Cake.Price = (int)(order.Price / order.Quantity);
+                await _cakeRepo.Update(order.Cake);
+            }
+            else if (order.Cake?.Price * order.Quantity != order.Price)
             {
                 return BadRequest("The sum of cakes' prices is not equal to order's price.");
             }
