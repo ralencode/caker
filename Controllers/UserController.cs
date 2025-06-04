@@ -35,13 +35,13 @@ namespace Caker.Controllers
                 var result = await _repo.GetById(userId);
                 if (result == null)
                 {
-                    return NotFound();
+                    return Unauthorized();
                 }
                 return Ok(result.ToDto());
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
         }
 
@@ -57,7 +57,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             return await Update(userId, dto);
         }
@@ -74,7 +74,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             return await PartialUpdate(userId, patchDoc);
         }
@@ -91,7 +91,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
         }
 

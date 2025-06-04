@@ -41,13 +41,23 @@ namespace Caker.Controllers
         [HttpGet("self/settings")]
         public async Task<ActionResult<ConfectionerSettingsResponse>> GetSettings()
         {
-            var user = await _currUserService.GetUser();
-            if (user == null)
-                return Forbid();
+            User? user_nullable;
+            try
+            {
+                user_nullable = await _currUserService.GetUser();
+                if (user_nullable == null)
+                    return Unauthorized();
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            User user = user_nullable;
 
             var confectioner = user.Confectioner;
             if (confectioner == null)
-                return NotFound();
+                return Forbid();
 
             return GetSettings(confectioner);
         }
@@ -91,13 +101,23 @@ namespace Caker.Controllers
             [FromBody] UpdateConfectionerSettingsRequest request
         )
         {
-            var user = await _currUserService.GetUser();
-            if (user == null)
-                return Forbid();
+            User? user_nullable;
+            try
+            {
+                user_nullable = await _currUserService.GetUser();
+                if (user_nullable == null)
+                    return Unauthorized();
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            User user = user_nullable;
 
             var confectioner = user.Confectioner;
             if (confectioner == null)
-                return NotFound();
+                return Forbid();
 
             return await UpdateSettings(confectioner, request);
         }
@@ -135,13 +155,23 @@ namespace Caker.Controllers
         [HttpGet("self/balance")]
         public async Task<ActionResult<ConfectionerBalanceResponse>> GetBalance()
         {
-            var user = await _currUserService.GetUser();
-            if (user == null)
-                return Forbid();
+            User? user_nullable;
+            try
+            {
+                user_nullable = await _currUserService.GetUser();
+                if (user_nullable == null)
+                    return Unauthorized();
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+
+            User user = user_nullable;
 
             var confectioner = user.Confectioner;
             if (confectioner == null)
-                return NotFound();
+                return Forbid();
 
             return Ok(
                 new ConfectionerBalanceResponse(
@@ -156,11 +186,24 @@ namespace Caker.Controllers
             [FromBody] WithdrawRequest request
         )
         {
-            var user = await _currUserService.GetUser();
-            if (user == null || user.Confectioner == null)
-                return Forbid();
+            User? user_nullable;
+            try
+            {
+                user_nullable = await _currUserService.GetUser();
+                if (user_nullable == null || user_nullable.Confectioner == null)
+                    return Unauthorized();
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+            User user = user_nullable;
 
             var confectioner = user.Confectioner;
+            if (confectioner == null)
+            {
+                return Forbid();
+            }
 
             if (request.Amount <= 0)
                 return BadRequest("Amount must be positive.");

@@ -31,9 +31,22 @@ namespace Caker.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
         {
-            var user = await _userRepo.GetByPhoneNumber(request.Phone);
-            if (user == null || !_passwordService.VerifyPassword(request.Password, user.Password))
+            User? user_nullable;
+            try
+            {
+                user_nullable = await _userRepo.GetByPhoneNumber(request.Phone);
+                if (
+                    user_nullable == null
+                    || !_passwordService.VerifyPassword(request.Password, user_nullable.Password)
+                )
+                    return Unauthorized();
+            }
+            catch
+            {
                 return Unauthorized();
+            }
+
+            User user = user_nullable;
 
             var accessToken = _tokenService.GenerateAccessToken(user);
             var refreshToken = await CreateRefreshToken(user);
