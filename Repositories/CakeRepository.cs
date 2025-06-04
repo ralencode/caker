@@ -12,7 +12,9 @@ namespace Caker.Repositories
                 query
                     .Include(c => c.Confectioner)
                     .ThenInclude(conf => conf!.User)
-                    .Include(c => c.Orders);
+                    .Include(c => c.Orders)
+                    .ThenInclude(o => o.Customer)
+                    .ThenInclude(c => c!.User);
         }
 
         public async Task<IEnumerable<Cake>?> GetByConfectioner(int confectionerId)
