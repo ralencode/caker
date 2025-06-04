@@ -3,6 +3,7 @@ using Caker.Models;
 using Caker.Repositories;
 using Caker.Services.CurrentUserService;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Caker.Controllers
 {
@@ -410,6 +411,83 @@ namespace Caker.Controllers
             confectioner.BalanceAvailable += amount;
 
             await _confectionerRepo.Update(confectioner);
+
+            return Ok(order.ToDto());
+        }
+
+        [HttpPut("{orderId}/status")]
+        public async Task<ActionResult<OrderResponse>> ChangeStatus(
+            int orderId,
+            [FromBody] ChangeStatusRequest request
+        )
+        {
+            var user = await _currUserService.GetUser();
+            if (user == null)
+                return Forbid("Not logged in (curent user is null)");
+
+            var order = await _repo.GetById(orderId);
+            if (order == null)
+                return NotFound();
+
+            if (order.CustomerId == user.Customer?.Id)
+            {
+                IEnumerable<string> allowedStatuses =
+                [
+                    "pending_approval",
+                    "pendingapproval",
+                    "in_progress",
+                    "inprogress",
+                    "received",
+                    "recieved",
+                    "canceled",
+                    "cancelled",
+                ];
+                if (allowedStatuses.Contains(request.Status.ToLower()))
+                {
+                    order.OrderStatus = request.Status switch
+                    {
+                        "pending_approval" or "pendingapproval" => OrderStatusType.PENDING_APPROVAL,
+                        "in_progress" or "inprogress" => OrderStatusType.IN_PROGRESS,
+                        "recieved" or "received" => OrderStatusType.RECEIVED,
+                        "canceled" or "cancelled" => OrderStatusType.CANCELED,
+                        _ => order.OrderStatus,
+                    };
+                }
+                else
+                    return Forbid();
+            }
+            else if (order.Cake?.ConfectionerId == user.Confectioner?.Id)
+            {
+                IEnumerable<string> allowedStatuses =
+                [
+                    "pending_approval",
+                    "pendingapproval",
+                    "in_progress",
+                    "inprogress",
+                    "pending_payment",
+                    "pendingpayment",
+                    "done",
+                    "rejected",
+                ];
+                if (allowedStatuses.Contains(request.Status.ToLower()))
+                {
+                    order.OrderStatus = request.Status switch
+                    {
+                        "pending_approval" or "pendingapproval" => OrderStatusType.PENDING_APPROVAL,
+                        "in_progress" or "inprogress" => OrderStatusType.IN_PROGRESS,
+                        "pending_payment" or "pendingpayment" => OrderStatusType.PENDING_PAYMENT,
+                        "done" => OrderStatusType.DONE,
+                        "rejected" => OrderStatusType.REJECTED,
+                        _ => order.OrderStatus,
+                    };
+                }
+                else
+                    return Forbid();
+            }
+            else
+                return Forbid();
+
+            await _repo.Update(order);
 
             return Ok(order.ToDto());
         }
