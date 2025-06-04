@@ -40,7 +40,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             var id_n = user?.Confectioner?.Id;
             if (id_n is null)
@@ -68,7 +68,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             var id_n = user?.Confectioner?.Id;
             if (id_n is null)
@@ -181,7 +181,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             var id_n = user?.Confectioner?.Id;
             if (id_n is null)

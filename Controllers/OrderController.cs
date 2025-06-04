@@ -3,7 +3,6 @@ using Caker.Models;
 using Caker.Repositories;
 using Caker.Services.CurrentUserService;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Caker.Controllers
 {
@@ -38,7 +37,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             var id_n = user?.Customer?.Id;
             if (id_n is null)
@@ -65,7 +64,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             var id_n = user?.Customer?.Id;
             if (id_n is null)
@@ -134,7 +133,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             var id_n = user?.Customer?.Id;
             if (id_n is null)
@@ -161,7 +160,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             var id_n = user?.Customer?.Id;
             if (id_n is null)
@@ -219,7 +218,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             var id_n = user?.Confectioner?.Id;
             if (id_n is null)
@@ -253,7 +252,7 @@ namespace Caker.Controllers
             }
             catch
             {
-                return Forbid();
+                return Unauthorized();
             }
             var id_n = user?.Customer?.Id;
             if (id_n is null)
@@ -328,9 +327,19 @@ namespace Caker.Controllers
             [FromBody] PaymentRequest request
         )
         {
-            var user = await _currUserService.GetUser();
-            if (user == null)
-                return Forbid("Not logged in (curent user is null)");
+            User? user_nullable;
+            try
+            {
+                user_nullable = await _currUserService.GetUser();
+                if (user_nullable == null)
+                    return Unauthorized("Not logged in (curent user is null)");
+            }
+            catch
+            {
+                return Unauthorized("Not logged in (curent user is null)");
+            }
+
+            User user = user_nullable;
 
             var order = await _repo.GetById(orderId, tracking: true);
             if (order == null)
@@ -372,9 +381,19 @@ namespace Caker.Controllers
         [HttpPost("{orderId}/receive")]
         public async Task<ActionResult<OrderResponse>> Receive(int orderId)
         {
-            var user = await _currUserService.GetUser();
-            if (user == null)
-                return Forbid("Not logged in (curent user is null)");
+            User? user_nullable;
+            try
+            {
+                user_nullable = await _currUserService.GetUser();
+                if (user_nullable == null)
+                    return Unauthorized("Not logged in (curent user is null)");
+            }
+            catch
+            {
+                return Unauthorized("Not logged in (curent user is null)");
+            }
+
+            User user = user_nullable;
 
             var order = await _repo.GetById(orderId);
             if (order == null)
@@ -421,9 +440,19 @@ namespace Caker.Controllers
             [FromBody] ChangeStatusRequest request
         )
         {
-            var user = await _currUserService.GetUser();
-            if (user == null)
-                return Forbid("Not logged in (curent user is null)");
+            User? user_nullable;
+            try
+            {
+                user_nullable = await _currUserService.GetUser();
+                if (user_nullable == null)
+                    return Unauthorized("Not logged in (curent user is null)");
+            }
+            catch
+            {
+                return Unauthorized("Not logged in (curent user is null)");
+            }
+
+            User user = user_nullable;
 
             var order = await _repo.GetById(orderId);
             if (order == null)
