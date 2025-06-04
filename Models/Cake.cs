@@ -46,8 +46,7 @@ namespace Caker.Models
         public double ImageScale { get; set; } = 1.0;
 
         [JsonIgnore]
-        public virtual ICollection<Order>? Orders { get; set; }
-
+        public virtual ICollection<Order> Orders { get; set; } = [];
         public ICollection<int> AllowedUserIds
         {
             get
@@ -55,13 +54,22 @@ namespace Caker.Models
                 List<int> result = [];
                 if (IsCustom)
                 {
-                    var inOrder = Orders?.Select(o => o.Customer?.UserId).ToList() ?? [];
-                    result.AddRange((List<int>)inOrder.Where(id => id is not null));
+                    var inOrder =
+                        Orders
+                            ?.Select(o => o.Customer?.UserId)
+                            .Where(id => id.HasValue)
+                            .Select(id => id!.Value)
+                            .ToList() ?? [];
+                    Console.WriteLine(
+                        inOrder.Select(id => id.ToString()).Aggregate((a, b) => a + ", " + b)
+                    );
+                    result.AddRange(inOrder);
                 }
-
                 if (Confectioner is not null)
                     result.Add(Confectioner.UserId);
-
+                Console.WriteLine(
+                    result.Select(id => id.ToString()).Aggregate((a, b) => a + ", " + b)
+                );
                 return result;
             }
         }
