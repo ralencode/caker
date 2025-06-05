@@ -15,7 +15,7 @@ namespace Caker.Services.ImageService
             using var stream = new FileStream(filePath, FileMode.Create);
             await image.CopyToAsync(stream);
 
-            return $"{userId}/{fileName}";
+            return $"https://caker.ralen.top/assets/{userId}/{fileName}";
         }
     }
 }
